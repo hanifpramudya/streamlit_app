@@ -287,5 +287,5 @@ with col_right:
                 height=120,
                 margin=dict(l=10, r=10, t=0, b=0)
             )
-            st.plotly_chart(fig_metric, use_container_width=True)
+            st.plotly_chart(fig_metric, use_container_width=True, key=f"metric_{i}")
             st.markdown(f"<p style='text-align: center; font-size: 10px;'>{label}</p>", unsafe_allow_html=True)
