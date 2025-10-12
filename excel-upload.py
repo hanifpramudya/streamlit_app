@@ -148,6 +148,19 @@ if uploaded_file is not None:
                             df_summary.iloc[1, i] = f"{left_value}-score classification"
                             first_nan = True
             
+            # Step 8: Combine row 0 and row 1 to create new column names
+            if len(df_summary) > 1:
+                new_columns = []
+                for i, col in enumerate(df_summary.columns):
+                    row_0_value = str(df_summary.iloc[0, i]) if pd.notna(df_summary.iloc[0, i]) else ''
+                    row_1_value = str(df_summary.iloc[1, i]) if pd.notna(df_summary.iloc[1, i]) else ''
+                    new_columns.append(f"{row_0_value}-{row_1_value}")
+                
+                df_summary.columns = new_columns
+                
+                # Drop row 0 and row 1
+                df_summary = df_summary.iloc[2:].reset_index(drop=True)
+            
             st.write(f"**Total rows:** {len(df_summary)}")
             st.write(f"**Total columns:** {len(df_summary.columns)}")
             
