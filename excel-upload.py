@@ -157,7 +157,7 @@ if uploaded_file is not None:
                     
                     # For first two columns (Parameter and first data column), keep as is
                     if i < 2:
-                        new_columns.append(f"{row_0_value}")
+                        new_columns.append(f"{row_1_value}")
                     else:
                         # Start special processing from column 3 onwards
                         # Check if row_1 contains "weighted" or "weighted-classification"
@@ -185,6 +185,28 @@ if uploaded_file is not None:
                 
                 # Drop row 0 and row 1
                 df_summary = df_summary.iloc[2:].reset_index(drop=True)
+            
+            # Create df_summary_present with latest and previous month data
+            # Get the latest month from the last row
+            if len(df_summary) > 0:
+                # Find columns that contain month-year data (exclude Parameter column)
+                date_columns = [col for col in df_summary.columns if col not in ['Parameter', 'nan-nan']]
+                
+                if len(date_columns) >= 2:
+                    # Get the last two date columns (latest and previous month)
+                    latest_col = date_columns[-1]
+                    previous_col = date_columns[-2]
+                    
+                    # Create df_summary_present with Parameter and the two month columns
+                    df_summary_present = df_summary[['Parameter', previous_col, latest_col]].copy()
+                    
+                    # Display the present summary
+                    st.subheader("📅 Latest Month Summary")
+                    st.write(f"**Latest Month:** {latest_col}")
+                    st.write(f"**Previous Month:** {previous_col}")
+                    st.dataframe(df_summary_present, use_container_width=True)
+                    
+                    st.divider()
             
             st.write(f"**Total rows:** {len(df_summary)}")
             st.write(f"**Total columns:** {len(df_summary.columns)}")
