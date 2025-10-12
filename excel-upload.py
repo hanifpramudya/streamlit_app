@@ -31,11 +31,25 @@ if uploaded_file is not None:
             df_ytd = pd.read_excel(uploaded_file, sheet_name="Data_YTD")
             
             # Clean up Data_YTD sheet
-            # Combine Unnamed: 0 and Unnamed: 1 into "Parameter"
-            if 'Unnamed: 0' in df_ytd.columns and 'Unnamed: 1' in df_ytd.columns:
-                df_ytd['Parameter'] = df_ytd['Unnamed: 0'].fillna('') + ' ' + df_ytd['Unnamed: 1'].fillna('')
-                df_ytd['Parameter'] = df_ytd['Parameter'].str.strip()
-                df_ytd = df_ytd.drop(['Unnamed: 0', 'Unnamed: 1'], axis=1)
+            # Drop Unnamed: 0 and rename Unnamed: 1 to Parameter
+            if 'Unnamed: 0' in df_ytd.columns:
+                df_ytd = df_ytd.drop('Unnamed: 0', axis=1)
+            if 'Unnamed: 1' in df_ytd.columns:
+                df_ytd = df_ytd.rename(columns={'Unnamed: 1': 'Parameter'})
+            
+            # Replace "Unnamed: " columns with the value from the left column
+            cols = list(df_ytd.columns)
+            new_cols = []
+            last_named = None
+            
+            for col in cols:
+                if col.startswith('Unnamed: '):
+                    new_cols.append(last_named if last_named else col)
+                else:
+                    new_cols.append(col)
+                    last_named = col
+            
+            df_ytd.columns = new_cols
             
             # Fill NaN in row 0 with values from the left (forward fill)
             if len(df_ytd) > 0:
