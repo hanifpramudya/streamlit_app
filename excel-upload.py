@@ -130,9 +130,23 @@ if uploaded_file is not None:
             if len(df_summary) > 0:
                 df_summary.iloc[0] = df_summary.iloc[0].fillna(method='ffill')
             
-            # Step 7: Fill NaN in current row 1 with values from the left (forward fill)
+            # Step 7: Fill NaN in current row 1 with alternating pattern
             if len(df_summary) > 1:
-                df_summary.iloc[1] = df_summary.iloc[1].fillna(method='ffill')
+                first_nan = True  # Track if it's the first or second NaN
+                for i in range(len(df_summary.columns)):
+                    col = df_summary.columns[i]
+                    if col != 'Parameter' and pd.isna(df_summary.iloc[1, i]):
+                        # Get the left column value from row 1
+                        left_col = df_summary.columns[i-1]
+                        left_value = str(df_summary.iloc[1, df_summary.columns.get_loc(left_col)])
+                        
+                        # Alternate between two patterns
+                        if first_nan:
+                            df_summary.iloc[1, i] = f"{left_value}-weighted"
+                            first_nan = False
+                        else:
+                            df_summary.iloc[1, i] = f"{left_value}-score classification"
+                            first_nan = True
             
             st.write(f"**Total rows:** {len(df_summary)}")
             st.write(f"**Total columns:** {len(df_summary.columns)}")
