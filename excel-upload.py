@@ -165,38 +165,7 @@ if uploaded_file is not None:
                     new_columns.append(f"{row_0_value}-{row_1_value}")
             
             df_summary.columns = new_columns
-            df_summary = df_summary.iloc[2:].reset_index(drop=True)eplace "Unnamed: " columns with the value from the left column
-            cols = list(df_summary.columns)
-            new_cols = []
-            last_named = None
-            
-            for col in cols:
-                col_str = str(col)
-                if col_str.startswith('Unnamed: '):
-                    new_cols.append(last_named if last_named else col)
-                else:
-                    new_cols.append(col)
-                    if col != 'Parameter':  # Don't use Parameter as last_named
-                        last_named = col
-            
-            df_summary.columns = new_cols
-            
-            # Fill NaN in row 0 with values from the left (forward fill)
-            if len(df_summary) > 0:
-                df_summary.iloc[0] = df_summary.iloc[0].fillna(method='ffill')
-            
-            # Create new header with format "row_0_value - original_column_name"
-            if len(df_summary) > 0:
-                new_columns = []
-                for i, col in enumerate(df_summary.columns):
-                    if col == 'Parameter':
-                        new_columns.append('Parameter')
-                    else:
-                        row_0_value = str(df_summary.iloc[0, i]) if pd.notna(df_summary.iloc[0, i]) else ''
-                        new_columns.append(f"{row_0_value}-{col}")
-                
-                df_summary.columns = new_columns
-                df_summary = df_summary.iloc[1:].reset_index(drop=True)
+            df_summary = df_summary.iloc[2:].reset_index(drop=True)
             
             st.write(f"**Total rows:** {len(df_summary)}")
             st.write(f"**Total columns:** {len(df_summary.columns)}")
