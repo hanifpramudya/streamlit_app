@@ -198,7 +198,7 @@ if uploaded_file is not None:
                     previous_col = date_columns[-2]
                     
                     # Create df_summary_present with Parameter and the two month columns
-                    df_summary_present = df_summary[['Parameter', previous_col, latest_col]].copy()
+                    df_summary_present = df_summary[['Jenis Risiko', previous_col, latest_col]].copy()
                     
                     # Display the present summary
                     st.subheader("📅 Latest Month Summary")
