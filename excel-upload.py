@@ -218,11 +218,10 @@ if uploaded_file is not None:
                         previous_col_idx = len(row_0_numpy) - 4
                     
                     # Get column names
-                    if previous_col_idx >= 0:
+                    if previous_col_idx >= 0 and latest_col_idx >= 0:
                         latest_col = df_summary.columns[latest_col_idx]
                         previous_col = df_summary.columns[previous_col_idx]
-                    
-                    if latest_col and previous_col:
+                        
                         # Create df_summary_present with the two month columns only
                         df_summary_present = df_summary[[previous_col, latest_col]].copy()
                         
