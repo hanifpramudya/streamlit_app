@@ -30,6 +30,30 @@ if uploaded_file is not None:
             st.header("📈 Data_YTD Sheet")
             df_ytd = pd.read_excel(uploaded_file, sheet_name="Data_YTD")
             
+            # Clean up Data_YTD sheet
+            # Combine Unnamed: 0 and Unnamed: 1 into "Parameter"
+            if 'Unnamed: 0' in df_ytd.columns and 'Unnamed: 1' in df_ytd.columns:
+                df_ytd['Parameter'] = df_ytd['Unnamed: 0'].fillna('') + ' ' + df_ytd['Unnamed: 1'].fillna('')
+                df_ytd['Parameter'] = df_ytd['Parameter'].str.strip()
+                df_ytd = df_ytd.drop(['Unnamed: 0', 'Unnamed: 1'], axis=1)
+            
+            # Fill NaN in row 0 with values from the left (forward fill)
+            if len(df_ytd) > 0:
+                df_ytd.iloc[0] = df_ytd.iloc[0].fillna(method='ffill')
+            
+            # Create new header with format "row_0_value - original_column_name"
+            if len(df_ytd) > 0:
+                new_columns = []
+                for i, col in enumerate(df_ytd.columns):
+                    if col == 'Parameter':
+                        new_columns.append('Parameter')
+                    else:
+                        row_0_value = str(df_ytd.iloc[0, i]) if pd.notna(df_ytd.iloc[0, i]) else ''
+                        new_columns.append(f"{row_0_value}-{col}")
+                
+                df_ytd.columns = new_columns
+                df_ytd = df_ytd.iloc[1:].reset_index(drop=True)
+            
             st.write(f"**Total rows:** {len(df_ytd)}")
             st.write(f"**Total columns:** {len(df_ytd.columns)}")
             
