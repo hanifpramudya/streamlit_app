@@ -199,13 +199,28 @@ if uploaded_file is not None:
                     # Get first row (row 0) as numpy array
                     row_0_numpy = df_numpy[0]
                     
-                    # Get column indices using np.where
-                    latest_col_idx = np.where(row_0_numpy == row_0_numpy[-1])[0][-1]
-                    previous_col_idx = np.where(row_0_numpy == row_0_numpy[-4])[0][-1]
+                    # Convert to float to handle NaN check
+                    try:
+                        row_0_float = pd.to_numeric(row_0_numpy, errors='coerce')
+                        nan_mask = np.isnan(row_0_float) == True
+                        nan_indices = np.where(nan_mask)[0]
+                        
+                        if len(nan_indices) > 0:
+                            latest_col_idx = nan_indices[0] - 1
+                            previous_col_idx = nan_indices[0] - 4
+                        else:
+                            # If no NaN found, use the last columns
+                            latest_col_idx = len(row_0_numpy) - 1
+                            previous_col_idx = len(row_0_numpy) - 4
+                    except:
+                        # Fallback if conversion fails
+                        latest_col_idx = len(row_0_numpy) - 1
+                        previous_col_idx = len(row_0_numpy) - 4
                     
                     # Get column names
-                    latest_col = df_summary.columns[latest_col_idx]
-                    previous_col = df_summary.columns[previous_col_idx]
+                    if previous_col_idx >= 0:
+                        latest_col = df_summary.columns[latest_col_idx]
+                        previous_col = df_summary.columns[previous_col_idx]
                     
                     if latest_col and previous_col:
                         # Create df_summary_present with the two month columns only
