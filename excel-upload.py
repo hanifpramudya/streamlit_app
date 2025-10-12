@@ -193,22 +193,35 @@ if uploaded_file is not None:
                 date_columns = [col for col in df_summary.columns if col not in ['Parameter', 'nan-nan']]
                 
                 if len(date_columns) >= 2:
-                    # Get the last two date columns (latest and previous month)
-                    latest_col = date_columns[-1]
-                    previous_col = date_columns[-2]
+                    # Get the latest month value from the last row (row -1)
+                    last_row_values = df_summary.iloc[-1]
                     
-                    # Create df_summary_present with Parameter and the two month columns
-                    df_summary_present = df_summary[[previous_col, latest_col]].copy()
+                    # Find which columns have non-null values in the last row
+                    latest_col = None
+                    previous_col = None
                     
-                    # Display the present summary
-                    st.subheader("📅 Latest Month Summary")
-                    st.write(f"**Latest Month:** {latest_col}")
-                    st.write(f"**Previous Month:** {previous_col}")
-                    st.dataframe(df_summary_present, use_container_width=True)
+                    for col in reversed(date_columns):
+                        if pd.notna(last_row_values[col]) and last_row_values[col] != '':
+                            if latest_col is None:
+                                latest_col = col
+                            elif previous_col is None:
+                                previous_col = col
+                                break
                     
-                    st.divider()
+                    if latest_col and previous_col:
+                        # Create df_summary_present with the two month columns only
+                        df_summary_present = df_summary[[previous_col, latest_col]].copy()
+                        
+                        # Display the present summary
+                        st.subheader("📅 Latest Month Summary")
+                        st.write(f"**Latest Month:** {latest_col}")
+                        st.write(f"**Previous Month:** {previous_col}")
+                        st.dataframe(df_summary_present, use_container_width=True)
+                        
+                        st.divider()
             
             st.write(f"**Total rows:** {len(df_summary)}")
+            st.write(f"**Total columns:** {len(df_summary.columns)}")
             st.write(f"**Total columns:** {len(df_summary.columns)}")
             
             # Row selection slider for Summary
