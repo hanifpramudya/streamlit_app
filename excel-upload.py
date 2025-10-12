@@ -157,7 +157,7 @@ if uploaded_file is not None:
                     
                     # For first two columns (Parameter and first data column), keep as is
                     if i < 2:
-                        new_columns.append(f"{row_1_value}")
+                        new_columns.append(f"{row_0_value}")
                     else:
                         # Start special processing from column 3 onwards
                         # Check if row_1 contains "weighted" or "weighted-classification"
@@ -193,12 +193,14 @@ if uploaded_file is not None:
                 date_columns = [col for col in df_summary.columns if col not in ['Parameter', 'nan-nan']]
                 
                 if len(date_columns) >= 2:
-                    # Convert last row to numpy array
-                    last_row_numpy = df_summary.iloc[-1].values
+                    # Convert dataframe to numpy array
+                    df_numpy = df_summary.to_numpy()
+                    # Get first row (row 0) as numpy array
+                    row_0_numpy = df_numpy[0]
                     
-                    # Get latest_col from last index and previous_col from 4th from last
-                    latest_col_idx = len(df_summary.columns) - 1
-                    previous_col_idx = len(df_summary.columns) - 4
+                    # Get latest_col and previous_col from row_0_numpy indices
+                    latest_col_idx = row_0_numpy[-1]
+                    previous_col_idx = row_0_numpy[-4]
                     
                     # Make sure indices are valid
                     if previous_col_idx >= 0:
