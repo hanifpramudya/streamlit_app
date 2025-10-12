@@ -157,7 +157,7 @@ if uploaded_file is not None:
                     
                     # For first two columns (Parameter and first data column), keep as is
                     if i < 2:
-                        new_columns.append(f"{row_1_value}")
+                        new_columns.append(f"{row_0_value}")
                     else:
                         # Start special processing from column 3 onwards
                         # Check if row_1 contains "weighted" or "weighted-classification"
