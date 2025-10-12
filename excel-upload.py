@@ -201,12 +201,16 @@ if uploaded_file is not None:
                     previous_col = None
                     
                     for col in reversed(date_columns):
-                        if pd.notna(last_row_values[col]) and str(last_row_values[col]) != '':
-                            if latest_col is None:
-                                latest_col = col
-                            elif previous_col is None:
-                                previous_col = col
-                                break
+                        cell_value = last_row_values[col]
+                        # Check if value is not null and not empty
+                        if pd.notna(cell_value):
+                            cell_str = str(cell_value).strip()
+                            if cell_str and cell_str != '' and cell_str.lower() != 'nan':
+                                if latest_col is None:
+                                    latest_col = col
+                                elif previous_col is None:
+                                    previous_col = col
+                                    break
                     
                     if latest_col and previous_col:
                         # Create df_summary_present with the two month columns only
