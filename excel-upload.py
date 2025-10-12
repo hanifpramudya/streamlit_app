@@ -235,37 +235,10 @@ if uploaded_file is not None:
             
             st.write(f"**Total rows:** {len(df_summary)}")
             st.write(f"**Total columns:** {len(df_summary.columns)}")
-            
-            # Row selection slider for Summary
-            max_rows_summary = len(df_summary)
-            if max_rows_summary > 10:
-                start_row_summary = st.slider(
-                    "Select starting row for Summary", 
-                    min_value=0, 
-                    max_value=max_rows_summary-10,
-                    value=0,
-                    key="summary_slider"
-                )
-                st.subheader(f"Rows {start_row_summary+1} to {start_row_summary+10}")
-                st.dataframe(df_summary.iloc[start_row_summary:start_row_summary+10], use_container_width=True)
-            else:
-                st.subheader("All Rows")
-                st.dataframe(df_summary, use_container_width=True)
-            
-            with st.expander("📋 View All Data - Summary"):
-                st.dataframe(df_summary, use_container_width=True, height=400)
-            
-            with st.expander("📋 Column Information - Summary"):
-                col_info_summary = pd.DataFrame({
-                    'Column Name': df_summary.columns,
-                    'Data Type': df_summary.dtypes.values,
-                    'Non-Null Count': df_summary.count().values
-                })
-                st.dataframe(col_info_summary, use_container_width=True)
             st.write(f"**Total columns:** {len(df_summary.columns)}")
             
             # Row selection slider for Summary
-            max_rows_summary = len(df_summary)
+            max_rows_summary = len(df_summary_present)
             if max_rows_summary > 10:
                 start_row_summary = st.slider(
                     "Select starting row for Summary", 
@@ -275,13 +248,13 @@ if uploaded_file is not None:
                     key="summary_slider"
                 )
                 st.subheader(f"Rows {start_row_summary+1} to {start_row_summary+10}")
-                st.dataframe(df_summary.iloc[start_row_summary:start_row_summary+10], use_container_width=True)
+                st.dataframe(df_summary_present.iloc[start_row_summary:start_row_summary+10], use_container_width=True)
             else:
                 st.subheader("All Rows")
-                st.dataframe(df_summary, use_container_width=True)
+                st.dataframe(df_summary_present, use_container_width=True)
             
             with st.expander("📋 View All Data - Summary"):
-                st.dataframe(df_summary, use_container_width=True, height=400)
+                st.dataframe(df_summary_present, use_container_width=True, height=400)
             
             with st.expander("📋 Column Information - Summary"):
                 col_info_summary = pd.DataFrame({
