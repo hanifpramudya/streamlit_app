@@ -48,8 +48,7 @@ if uploaded_file is not None:
                     new_cols.append(last_named if last_named else col)
                 else:
                     new_cols.append(col)
-                    if col != 'Parameter':  # Don't use Parameter as last_named
-                        last_named = col
+                    last_named = col
             
             df_ytd.columns = new_cols
             
@@ -125,8 +124,7 @@ if uploaded_file is not None:
                     new_cols.append(last_named if last_named else col)
                 else:
                     new_cols.append(col)
-                    if col != 'Parameter':  # Don't use Parameter as last_named
-                        last_named = col
+                    last_named = col
             
             df_summary.columns = new_cols
             
