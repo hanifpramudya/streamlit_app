@@ -48,7 +48,8 @@ if uploaded_file is not None:
                     new_cols.append(last_named if last_named else col)
                 else:
                     new_cols.append(col)
-                    last_named = col
+                    if col != 'Parameter':  # Don't use Parameter as last_named
+                        last_named = col
             
             df_ytd.columns = new_cols
             
@@ -105,6 +106,97 @@ if uploaded_file is not None:
         if "Summary" in excel_file.sheet_names:
             st.header("📊 Summary Sheet")
             df_summary = pd.read_excel(uploaded_file, sheet_name="Summary")
+            
+            # Clean up Summary sheet
+            # Step 1: Move column names to row 0
+            original_columns = df_summary.columns.tolist()
+            df_summary.loc[-1] = original_columns  # Insert at index -1
+            df_summary.index = df_summary.index + 1  # Shift index
+            df_summary = df_summary.sort_index()  # Sort by index
+            
+            # Step 2: Create new temporary column names
+            df_summary.columns = [f'Col_{i}' for i in range(len(df_summary.columns))]
+            
+            # Step 3: Drop first column (was Unnamed: 0)
+            df_summary = df_summary.drop('Col_0', axis=1)
+            
+            # Step 4: Rename second column to Parameter
+            df_summary = df_summary.rename(columns={'Col_1': 'Parameter'})
+            
+            # Step 5: Fill row 0 "Unnamed: " values with left value
+            for i in range(1, len(df_summary.columns)):
+                col = df_summary.columns[i]
+                if col != 'Parameter':
+                    cell_value = str(df_summary.iloc[0, i])
+                    if cell_value.startswith('Unnamed: '):
+                        # Get the left column value
+                        left_col = df_summary.columns[i-1]
+                        left_value = str(df_summary.iloc[0, df_summary.columns.get_loc(left_col)])
+                        df_summary.iloc[0, i] = left_value
+            
+            # Step 6: Fill row 1 NaN values with pattern from left value
+            if len(df_summary) > 1:
+                for i in range(1, len(df_summary.columns)):
+                    col = df_summary.columns[i]
+                    if col != 'Parameter' and pd.isna(df_summary.iloc[1, i]):
+                        # Get the left column value from row 1
+                        left_col = df_summary.columns[i-1]
+                        left_value = str(df_summary.iloc[1, df_summary.columns.get_loc(left_col)])
+                        
+                        # Determine if it should be "weightedscore" or "score"
+                        # Alternate pattern or check for specific condition
+                        if 'weightedscore' in left_value.lower():
+                            df_summary.iloc[1, i] = f"{left_value.split('-')[0]}-score"
+                        else:
+                            # Check pattern - if previous was score, next is weightedscore
+                            if '-score' in left_value.lower() and 'weighted' not in left_value.lower():
+                                df_summary.iloc[1, i] = f"{left_value.split('-')[0]}-weightedscore"
+                            else:
+                                df_summary.iloc[1, i] = f"{left_value.split('-')[0]}-weightedscore"
+            
+            # Step 7: Create final column names by combining row 0 and row 1
+            new_columns = []
+            for i, col in enumerate(df_summary.columns):
+                if col == 'Parameter':
+                    new_columns.append('Parameter')
+                else:
+                    row_0_value = str(df_summary.iloc[0, i]) if pd.notna(df_summary.iloc[0, i]) else ''
+                    row_1_value = str(df_summary.iloc[1, i]) if pd.notna(df_summary.iloc[1, i]) else ''
+                    new_columns.append(f"{row_0_value}-{row_1_value}")
+            
+            df_summary.columns = new_columns
+            df_summary = df_summary.iloc[2:].reset_index(drop=True)eplace "Unnamed: " columns with the value from the left column
+            cols = list(df_summary.columns)
+            new_cols = []
+            last_named = None
+            
+            for col in cols:
+                col_str = str(col)
+                if col_str.startswith('Unnamed: '):
+                    new_cols.append(last_named if last_named else col)
+                else:
+                    new_cols.append(col)
+                    if col != 'Parameter':  # Don't use Parameter as last_named
+                        last_named = col
+            
+            df_summary.columns = new_cols
+            
+            # Fill NaN in row 0 with values from the left (forward fill)
+            if len(df_summary) > 0:
+                df_summary.iloc[0] = df_summary.iloc[0].fillna(method='ffill')
+            
+            # Create new header with format "row_0_value - original_column_name"
+            if len(df_summary) > 0:
+                new_columns = []
+                for i, col in enumerate(df_summary.columns):
+                    if col == 'Parameter':
+                        new_columns.append('Parameter')
+                    else:
+                        row_0_value = str(df_summary.iloc[0, i]) if pd.notna(df_summary.iloc[0, i]) else ''
+                        new_columns.append(f"{row_0_value}-{col}")
+                
+                df_summary.columns = new_columns
+                df_summary = df_summary.iloc[1:].reset_index(drop=True)
             
             st.write(f"**Total rows:** {len(df_summary)}")
             st.write(f"**Total columns:** {len(df_summary.columns)}")
