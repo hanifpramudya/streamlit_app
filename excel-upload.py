@@ -193,24 +193,17 @@ if uploaded_file is not None:
                 date_columns = [col for col in df_summary.columns if col not in ['Parameter', 'nan-nan']]
                 
                 if len(date_columns) >= 2:
-                    # Get the latest month value from the last row (row -1)
-                    last_row_values = df_summary.iloc[-1]
+                    # Convert last row to numpy array
+                    last_row_numpy = df_summary.iloc[-1].values
                     
-                    # Find which columns have non-null values in the last row
-                    latest_col = None
-                    previous_col = None
+                    # Get latest_col from last index and previous_col from 4th from last
+                    latest_col_idx = len(df_summary.columns) - 1
+                    previous_col_idx = len(df_summary.columns) - 4
                     
-                    for col in reversed(date_columns):
-                        cell_value = last_row_values[col]
-                        # Check if value is not null and not empty
-                        if pd.notna(cell_value):
-                            cell_str = str(cell_value).strip()
-                            if cell_str and cell_str != '' and cell_str.lower() != 'nan':
-                                if latest_col is None:
-                                    latest_col = col
-                                elif previous_col is None:
-                                    previous_col = col
-                                    break
+                    # Make sure indices are valid
+                    if previous_col_idx >= 0:
+                        latest_col = df_summary.columns[latest_col_idx]
+                        previous_col = df_summary.columns[previous_col_idx]
                     
                     if latest_col and previous_col:
                         # Create df_summary_present with the two month columns only
