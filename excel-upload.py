@@ -155,26 +155,31 @@ if uploaded_file is not None:
                     row_0_value = str(df_summary.iloc[0, i]) if pd.notna(df_summary.iloc[0, i]) else ''
                     row_1_value = str(df_summary.iloc[1, i]) if pd.notna(df_summary.iloc[1, i]) else ''
                     
-                    # Check if row_0 contains "weighted" or "weighted-classification"
-                    if 'weighted' in row_0_value.lower() or 'weighted-classification' in row_0_value.lower():
-                        # Split row_1 by '-' to get parts
-                        row_1_parts = row_1_value.split('-')
-                        if len(row_1_parts) >= 3:
-                            # Format: row_1[0] - row_0 - row_1[1] - row_1[2] (if exists)
-                            try:
-                                result = f"{row_1_parts[0]}-{row_0_value}-{row_1_parts[1]}-{row_1_parts[2]}"
-                            except:
-                                result = f"{row_0_value}-{row_1_parts[1]}"
-                            new_columns.append(result)
-                        elif len(row_1_parts) >= 2:
-                            # Format: row_1[0] - row_0 - row_1[1]
-                            new_columns.append(f"{row_1_parts[0]}-{row_0_value}-{row_1_parts[1]}")
-                        else:
-                            # If row_1 doesn't have enough parts, use default pattern
-                            new_columns.append(f"{row_1_value}-{row_0_value}")
-                    else:
-                        # Default pattern: row_1 - row_0
+                    # For first two columns (Parameter and first data column), keep as is
+                    if i < 2:
                         new_columns.append(f"{row_1_value}-{row_0_value}")
+                    else:
+                        # Start special processing from column 3 onwards
+                        # Check if row_0 contains "weighted" or "weighted-classification"
+                        if 'weighted' in row_0_value.lower() or 'weighted-classification' in row_0_value.lower():
+                            # Split row_1 by '-' to get parts
+                            row_1_parts = row_1_value.split('-')
+                            if len(row_1_parts) >= 3:
+                                # Format: row_1[0] - row_0 - row_1[1] - row_1[2] (if exists)
+                                try:
+                                    result = f"{row_1_parts[0]}-{row_0_value}-{row_1_parts[1]}-{row_1_parts[2]}"
+                                except:
+                                    result = f"{row_0_value}-{row_1_parts[1]}"
+                                new_columns.append(result)
+                            elif len(row_1_parts) >= 2:
+                                # Format: row_1[0] - row_0 - row_1[1]
+                                new_columns.append(f"{row_1_parts[0]}-{row_0_value}-{row_1_parts[1]}")
+                            else:
+                                # If row_1 doesn't have enough parts, use default pattern
+                                new_columns.append(f"{row_1_value}-{row_0_value}")
+                        else:
+                            # Default pattern: row_1 - row_0
+                            new_columns.append(f"{row_1_value}-{row_0_value}")
                 
                 df_summary.columns = new_columns
                 
