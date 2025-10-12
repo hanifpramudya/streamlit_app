@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 # Set page configuration
 st.set_page_config(page_title="Excel Data Viewer", page_icon="📊", layout="wide")
@@ -198,14 +199,13 @@ if uploaded_file is not None:
                     # Get first row (row 0) as numpy array
                     row_0_numpy = df_numpy[0]
                     
-                    # Get latest_col and previous_col from row_0_numpy indices
-                    latest_col_idx = row_0_numpy[-1]
-                    previous_col_idx = row_0_numpy[-4]
+                    # Get column indices using np.where
+                    latest_col_idx = np.where(row_0_numpy == row_0_numpy[-1])[0][-1]
+                    previous_col_idx = np.where(row_0_numpy == row_0_numpy[-4])[0][-1]
                     
-                    # Make sure indices are valid
-                    if previous_col_idx >= 0:
-                        latest_col = df_summary.columns[latest_col_idx]
-                        previous_col = df_summary.columns[previous_col_idx]
+                    # Get column names
+                    latest_col = df_summary.columns[latest_col_idx]
+                    previous_col = df_summary.columns[previous_col_idx]
                     
                     if latest_col and previous_col:
                         # Create df_summary_present with the two month columns only
