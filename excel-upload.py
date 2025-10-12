@@ -156,10 +156,17 @@ if uploaded_file is not None:
                     row_1_value = str(df_summary.iloc[1, i]) if pd.notna(df_summary.iloc[1, i]) else ''
                     
                     # Check if row_0 contains "weighted" or "weighted-classification"
-                    if 'weighted' in row_1_value.lower() or 'weighted-score classification' in row_1_value.lower():
+                    if 'weighted' in row_0_value.lower() or 'weighted-classification' in row_0_value.lower():
                         # Split row_1 by '-' to get parts
                         row_1_parts = row_1_value.split('-')
-                        if len(row_1_parts) >= 2:
+                        if len(row_1_parts) >= 3:
+                            # Format: row_1[0] - row_0 - row_1[1] - row_1[2] (if exists)
+                            try:
+                                result = f"{row_1_parts[0]}-{row_0_value}-{row_1_parts[1]}-{row_1_parts[2]}"
+                            except:
+                                result = f"{row_0_value}-{row_1_parts[1]}"
+                            new_columns.append(result)
+                        elif len(row_1_parts) >= 2:
                             # Format: row_1[0] - row_0 - row_1[1]
                             new_columns.append(f"{row_1_parts[0]}-{row_0_value}-{row_1_parts[1]}")
                         else:
