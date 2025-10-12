@@ -13,9 +13,15 @@ st.markdown("""
         background-color: #f5f5f5;
     }
     .block-container {
-        padding-top: 1rem;
+        padding-top: 2rem;
         padding-bottom: 0rem;
         max-width: 100%;
+    }
+    header {
+        visibility: visible !important;
+    }
+    .main > div {
+        padding-top: 2rem;
     }
     .stMetric {
         background-color: white;
