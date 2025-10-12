@@ -157,11 +157,11 @@ if uploaded_file is not None:
                     
                     # For first two columns (Parameter and first data column), keep as is
                     if i < 2:
-                        new_columns.append(f"{row_1_value}-{row_0_value}")
+                        new_columns.append(f"{row_1_value}")
                     else:
                         # Start special processing from column 3 onwards
-                        # Check if row_0 contains "weighted" or "weighted-classification"
-                        if 'weighted' in row_0_value.lower() or 'weighted-classification' in row_0_value.lower():
+                        # Check if row_1 contains "weighted" or "weighted-classification"
+                        if 'weighted' in row_1_value.lower() or 'weighted-classification' in row_1_value.lower():
                             # Split row_1 by '-' to get parts
                             row_1_parts = row_1_value.split('-')
                             if len(row_1_parts) >= 3:
