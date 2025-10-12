@@ -136,9 +136,9 @@ if uploaded_file is not None:
                 for i in range(len(df_summary.columns)):
                     col = df_summary.columns[i]
                     if col != 'Parameter' and pd.isna(df_summary.iloc[1, i]):
-                        # Get the left column value from row 1
+                        # Get the left column value from row 0 (not row 1)
                         left_col = df_summary.columns[i-1]
-                        left_value = str(df_summary.iloc[1, df_summary.columns.get_loc(left_col)])
+                        left_value = str(df_summary.iloc[0, df_summary.columns.get_loc(left_col)])
                         
                         # Alternate between two patterns
                         if first_nan:
