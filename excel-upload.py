@@ -148,13 +148,26 @@ if uploaded_file is not None:
                             df_summary.iloc[1, i] = f"{left_value}-score classification"
                             first_nan = True
             
-            # Step 8: Combine row 0 and row 1 to create new column names
+            # Step 8: Combine row 1 and row 0 to create new column names
             if len(df_summary) > 1:
                 new_columns = []
                 for i, col in enumerate(df_summary.columns):
                     row_0_value = str(df_summary.iloc[0, i]) if pd.notna(df_summary.iloc[0, i]) else ''
                     row_1_value = str(df_summary.iloc[1, i]) if pd.notna(df_summary.iloc[1, i]) else ''
-                    new_columns.append(f"{row_0_value}-{row_1_value}")
+                    
+                    # Check if row_0 contains "weighted" or "weighted-classification"
+                    if 'weighted' in row_0_value.lower() or 'weighted-classification' in row_0_value.lower():
+                        # Split row_1 by '-' to get parts
+                        row_1_parts = row_1_value.split('-')
+                        if len(row_1_parts) >= 2:
+                            # Format: row_1[0] - row_0 - row_1[1]
+                            new_columns.append(f"{row_1_parts[0]}-{row_0_value}-{row_1_parts[1]}")
+                        else:
+                            # If row_1 doesn't have enough parts, use default pattern
+                            new_columns.append(f"{row_1_value}-{row_0_value}")
+                    else:
+                        # Default pattern: row_1 - row_0
+                        new_columns.append(f"{row_1_value}-{row_0_value}")
                 
                 df_summary.columns = new_columns
                 
