@@ -121,8 +121,7 @@ if uploaded_file is not None:
             df_summary = df_summary.drop('Col_0', axis=1)
             
             # Step 4: Rename second column to Parameter
-            df_summary = df_summary.rename(columns={'Col_1': 'Parameter'})
-            
+            df_summary = df_summary.rename(columns={'Col_1': 'Parameter'})        
             # Step 5: Fill row 0 "Unnamed: " values with left value
             for i in range(1, len(df_summary.columns)):
                 col = df_summary.columns[i]
