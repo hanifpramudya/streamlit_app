@@ -77,7 +77,7 @@ with date_col[0]:
 st.markdown("### Summary")
 
 # Create summary table with NPS Score
-col_summary, col_nps = st.columns([2, 1])
+col_summary, col_nps = st.columns([1, 2.5])
 
 with col_summary:
     # Create risk matrix data
