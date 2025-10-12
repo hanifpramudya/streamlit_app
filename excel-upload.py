@@ -201,7 +201,7 @@ if uploaded_file is not None:
                     previous_col = None
                     
                     for col in reversed(date_columns):
-                        if pd.notna(last_row_values[col]) and last_row_values[col] != '':
+                        if pd.notna(last_row_values[col]) and str(last_row_values[col]) != '':
                             if latest_col is None:
                                 latest_col = col
                             elif previous_col is None:
