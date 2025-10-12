@@ -43,7 +43,8 @@ if uploaded_file is not None:
             last_named = None
             
             for col in cols:
-                if col.startswith('Unnamed: '):
+                col_str = str(col)
+                if col_str.startswith('Unnamed: '):
                     new_cols.append(last_named if last_named else col)
                 else:
                     new_cols.append(col)
