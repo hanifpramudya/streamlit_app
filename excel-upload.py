@@ -123,6 +123,17 @@ if uploaded_file is not None:
             # Step 4: Rename second column to Parameter
             df_summary = df_summary.rename(columns={'Col_1': 'Parameter'})
             
+            # Step 5: Drop row 0 (original column names)
+            df_summary = df_summary.iloc[1:].reset_index(drop=True)
+            
+            # Step 6: Fill NaN in current row 0 with values from the left (forward fill)
+            if len(df_summary) > 0:
+                df_summary.iloc[0] = df_summary.iloc[0].fillna(method='ffill')
+            
+            # Step 7: Fill NaN in current row 1 with values from the left (forward fill)
+            if len(df_summary) > 1:
+                df_summary.iloc[1] = df_summary.iloc[1].fillna(method='ffill')
+            
             st.write(f"**Total rows:** {len(df_summary)}")
             st.write(f"**Total columns:** {len(df_summary.columns)}")
             
