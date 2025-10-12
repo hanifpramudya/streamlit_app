@@ -121,50 +121,7 @@ if uploaded_file is not None:
             df_summary = df_summary.drop('Col_0', axis=1)
             
             # Step 4: Rename second column to Parameter
-            df_summary = df_summary.rename(columns={'Col_1': 'Parameter'})        
-            # Step 5: Fill row 0 "Unnamed: " values with left value
-            for i in range(1, len(df_summary.columns)):
-                col = df_summary.columns[i]
-                if col != 'Parameter':
-                    cell_value = str(df_summary.iloc[0, i])
-                    if cell_value.startswith('Unnamed: '):
-                        # Get the left column value
-                        left_col = df_summary.columns[i-1]
-                        left_value = str(df_summary.iloc[0, df_summary.columns.get_loc(left_col)])
-                        df_summary.iloc[0, i] = left_value
-            
-            # Step 6: Fill row 1 NaN values with pattern from left value
-            if len(df_summary) > 1:
-                for i in range(1, len(df_summary.columns)):
-                    col = df_summary.columns[i]
-                    if col != 'Parameter' and pd.isna(df_summary.iloc[1, i]):
-                        # Get the left column value from row 1
-                        left_col = df_summary.columns[i-1]
-                        left_value = str(df_summary.iloc[1, df_summary.columns.get_loc(left_col)])
-                        
-                        # Determine if it should be "weightedscore" or "score"
-                        # Alternate pattern or check for specific condition
-                        if 'weightedscore' in left_value.lower():
-                            df_summary.iloc[1, i] = f"{left_value.split('-')[0]}-score"
-                        else:
-                            # Check pattern - if previous was score, next is weightedscore
-                            if '-score' in left_value.lower() and 'weighted' not in left_value.lower():
-                                df_summary.iloc[1, i] = f"{left_value.split('-')[0]}-weightedscore"
-                            else:
-                                df_summary.iloc[1, i] = f"{left_value.split('-')[0]}-weightedscore"
-            
-            # Step 7: Create final column names by combining row 0 and row 1
-            new_columns = []
-            for i, col in enumerate(df_summary.columns):
-                if col == 'Parameter':
-                    new_columns.append('Parameter')
-                else:
-                    row_0_value = str(df_summary.iloc[0, i]) if pd.notna(df_summary.iloc[0, i]) else ''
-                    row_1_value = str(df_summary.iloc[1, i]) if pd.notna(df_summary.iloc[1, i]) else ''
-                    new_columns.append(f"{row_0_value}-{row_1_value}")
-            
-            df_summary.columns = new_columns
-            df_summary = df_summary.iloc[2:].reset_index(drop=True)
+            df_summary = df_summary.rename(columns={'Col_1': 'Parameter'})
             
             st.write(f"**Total rows:** {len(df_summary)}")
             st.write(f"**Total columns:** {len(df_summary.columns)}")
