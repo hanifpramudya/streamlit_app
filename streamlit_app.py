@@ -12,72 +12,110 @@ st.markdown("""
     .main {
         background-color: #f5f5f5;
     }
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 0rem;
+        max-width: 100%;
+    }
     .stMetric {
         background-color: white;
-        padding: 20px;
-        border-radius: 10px;
+        padding: 10px;
+        border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .risk-table {
         background-color: white;
-        padding: 20px;
-        border-radius: 10px;
+        padding: 15px;
+        border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .summary-box {
         background-color: #e8e8e8;
-        padding: 20px;
-        border-radius: 10px;
-        margin-bottom: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
     }
     .survey-card {
         background-color: white;
-        padding: 15px;
-        border-radius: 8px;
+        padding: 8px;
+        border-radius: 6px;
         text-align: center;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 8px;
     }
     .grc-card {
         background-color: white;
-        padding: 20px;
-        border-radius: 8px;
+        padding: 8px;
+        border-radius: 6px;
         text-align: center;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 8px;
     }
     .grc-number {
-        font-size: 48px;
+        font-size: 32px;
         color: #ff6347;
         font-weight: bold;
+        margin: 5px 0;
     }
     .survey-number {
-        font-size: 36px;
+        font-size: 24px;
         font-weight: bold;
         color: #333;
+        margin: 5px 0;
     }
     .survey-label {
         color: #999;
-        font-size: 14px;
+        font-size: 12px;
+    }
+    h1 {
+        font-size: 28px !important;
+        margin-bottom: 0.5rem !important;
+        padding: 0 !important;
+    }
+    h3 {
+        font-size: 18px !important;
+        margin: 0.5rem 0 !important;
+    }
+    h4 {
+        font-size: 14px !important;
+        margin: 0.3rem 0 !important;
+    }
+    .stButton button {
+        width: 100%;
+        height: 35px;
+        padding: 5px;
+        font-size: 13px;
+    }
+    div[data-testid="stSelectbox"] {
+        margin-bottom: 0.5rem;
+    }
+    .element-container {
+        margin-bottom: 0.3rem;
+    }
+    [data-testid="stTextArea"] textarea {
+        height: 100px !important;
+        min-height: 100px !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # Header
-col1, col2 = st.columns([3, 1])
+col1, col2 = st.columns([4, 1])
 with col1:
     st.title("Risk Management Dashboard")
 with col2:
-    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Astra_logo.svg/320px-Astra_logo.svg.png", width=150)
+    st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Astra_logo.svg/320px-Astra_logo.svg.png", width=120)
 
 # Date selector
-date_col = st.columns([1, 4])
-with date_col[0]:
+date_col1, date_col2 = st.columns([1, 5])
+with date_col1:
     selected_date = st.selectbox("", ["Maret 2025"], label_visibility="collapsed")
 
 # Summary Section
 st.markdown("### Summary")
 
 # Create summary table with NPS Score
-col_summary, col_nps = st.columns([1, 2.5])
+col_summary, col_nps, col_legend = st.columns([2, 1.5, 1])
 
 with col_summary:
     # Create risk matrix data
@@ -102,20 +140,19 @@ with col_summary:
             return ''
     
     styled_df = df.style.applymap(color_cells, subset=['Prev Month', 'Present Month'])
-    st.dataframe(styled_df, hide_index=True, use_container_width=True)
+    st.dataframe(styled_df, hide_index=True, use_container_width=True, height=150)
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_nps:
     st.markdown("#### 💎 NPS Score")
-    st.markdown("**Average Risk**")
-    st.markdown("NPS Score is +78")
+    st.markdown("**Average Risk** - NPS Score is +78")
     
     # Create gauge chart
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=78,
         domain={'x': [0, 1], 'y': [0, 1]},
-        title={'text': "Risk Tolerance", 'font': {'size': 12}},
+        number={'font': {'size': 20}},
         gauge={
             'axis': {'range': [None, 100], 'tickwidth': 1},
             'bar': {'color': "black"},
@@ -130,10 +167,12 @@ with col_nps:
             ],
         }
     ))
-    fig.update_layout(height=250, margin=dict(l=20, r=20, t=40, b=20))
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Risk legend
+    fig.update_layout(height=180, margin=dict(l=10, r=10, t=10, b=10))
+    st.plotly_chart(fig, use_container_width=True, key="nps_gauge")
+
+with col_legend:
+    st.markdown("")
+    st.markdown("")
     st.markdown("🟢 Low")
     st.markdown("🟢 Low to Moderate")
     st.markdown("🟡 Moderate")
@@ -141,49 +180,36 @@ with col_nps:
     st.markdown("🔴 High")
 
 # Dropdown for risk type
-st.selectbox("Keseluruhan Risiko", ["Keseluruhan Risiko"])
+st.selectbox("Keseluruhan Risiko", ["Keseluruhan Risiko"], label_visibility="collapsed")
 
-# Survey and GRC Section
-col1, col2, col3, col4, col5, col6 = st.columns(6)
+# Survey and GRC Section - Single row with all cards
+col1, col2, col3, col4, col5, col6, col7, col8, col9, col10 = st.columns(10)
 
-survey_cols = [col1, col2, col3, col4]
-for col in survey_cols:
+survey_cols = [col1, col2, col3, col4, col5, col6, col7, col8]
+for i, col in enumerate(survey_cols):
     with col:
         st.markdown('<div class="survey-card">', unsafe_allow_html=True)
         st.markdown('<div class="survey-label">Survey</div>', unsafe_allow_html=True)
         st.markdown('<div class="survey-number">60</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-# Second row of surveys
-col1, col2, col3, col4, col5, col6 = st.columns(6)
-
-survey_cols2 = [col1, col2, col3, col4]
-for col in survey_cols2:
-    with col:
-        st.markdown('<div class="survey-card">', unsafe_allow_html=True)
-        st.markdown('<div class="survey-label">Survey</div>', unsafe_allow_html=True)
-        st.markdown('<div class="survey-number">60</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-grc_cols = [col5, col6]
-for col in grc_cols:
+grc_cols = [col9, col10]
+for i, col in enumerate(grc_cols):
     with col:
         st.markdown('<div class="grc-card">', unsafe_allow_html=True)
         st.markdown('<div class="survey-label">GRC</div>', unsafe_allow_html=True)
         st.markdown('<div class="grc-number">06</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown("<br>", unsafe_allow_html=True)
-
 # Bottom Section
 col_left, col_middle, col_right = st.columns([1, 2, 2])
 
 with col_left:
     st.markdown("#### Jumlah gugatan")
-    st.text_area("", "", height=150, label_visibility="collapsed")
+    st.text_area("", "", height=100, label_visibility="collapsed")
     
     st.markdown("#### Jumlah Fraud")
-    st.text_area("", "", height=150, label_visibility="collapsed", key="fraud")
+    st.text_area("", "", height=100, label_visibility="collapsed", key="fraud")
 
 with col_middle:
     st.button("Pilih Variabel", use_container_width=True)
@@ -200,18 +226,18 @@ with col_middle:
         y=values,
         mode='lines+markers',
         line=dict(color='#20B2AA', width=3),
-        marker=dict(size=10, color='#20B2AA')
+        marker=dict(size=8, color='#20B2AA')
     ))
     
     fig_trend.update_layout(
-        height=300,
-        margin=dict(l=40, r=40, t=20, b=40),
+        height=250,
+        margin=dict(l=30, r=20, t=10, b=30),
         xaxis=dict(showgrid=False),
         yaxis=dict(range=[0, 8.5], showgrid=True, gridcolor='lightgray'),
         plot_bgcolor='white'
     )
     
-    st.plotly_chart(fig_trend, use_container_width=True)
+    st.plotly_chart(fig_trend, use_container_width=True, key="csat_trend")
 
 with col_right:
     st.button("Pilih Variabel", use_container_width=True, key="var2")
@@ -224,7 +250,7 @@ with col_right:
         mode="gauge+number",
         value=8.44,
         domain={'x': [0, 1], 'y': [0, 1]},
-        number={'suffix': '', 'font': {'size': 40}},
+        number={'suffix': '', 'font': {'size': 28}},
         gauge={
             'axis': {'range': [0, 10], 'tickwidth': 1},
             'bar': {'color': "white", 'thickness': 0},
@@ -242,18 +268,16 @@ with col_right:
         }
     ))
     fig_csat.update_layout(
-        height=200,
-        margin=dict(l=20, r=20, t=20, b=20),
+        height=140,
+        margin=dict(l=10, r=10, t=10, b=10),
         annotations=[
-            dict(text="▲ 25.09%", x=0.5, y=0.3, showarrow=False, font=dict(size=12)),
-            dict(text="Current Year - Last Year", x=0.5, y=0.15, showarrow=False, font=dict(size=10, color='gray'))
+            dict(text="▲ 25.09%", x=0.5, y=0.3, showarrow=False, font=dict(size=10)),
+            dict(text="Current Year - Last Year", x=0.5, y=0.15, showarrow=False, font=dict(size=8, color='gray'))
         ]
     )
-    st.plotly_chart(fig_csat, use_container_width=True)
+    st.plotly_chart(fig_csat, use_container_width=True, key="csat_score")
     
-    # Metrics in circles
-    metrics_cols = st.columns(3)
-    
+    # Metrics in circles - 2 rows of 3
     metrics_data = [
         ("Technical Copebilitis", "46%"),
         ("Timely Deliverie", "74%"),
@@ -263,19 +287,21 @@ with col_right:
         ("New Ideas & Creative Solution", "54%")
     ]
     
-    for i, (label, value) in enumerate(metrics_data):
-        col_idx = i % 3
-        with metrics_cols[col_idx]:
+    # First row
+    metrics_cols1 = st.columns(3)
+    for i in range(3):
+        label, value = metrics_data[i]
+        with metrics_cols1[i]:
             fig_metric = go.Figure(go.Indicator(
                 mode="gauge+number",
                 value=int(value.strip('%')),
                 domain={'x': [0, 1], 'y': [0, 1]},
-                number={'suffix': '%', 'font': {'size': 16}},
+                number={'suffix': '%', 'font': {'size': 12}},
                 gauge={
                     'axis': {'range': [0, 100], 'visible': False},
                     'bar': {'color': "white", 'thickness': 0},
                     'bgcolor': "white",
-                    'borderwidth': 3,
+                    'borderwidth': 2,
                     'bordercolor': '#20B2AA',
                     'steps': [
                         {'range': [0, int(value.strip('%'))], 'color': '#20B2AA'},
@@ -284,8 +310,37 @@ with col_right:
                 }
             ))
             fig_metric.update_layout(
-                height=120,
-                margin=dict(l=10, r=10, t=0, b=0)
+                height=80,
+                margin=dict(l=5, r=5, t=0, b=0)
             )
             st.plotly_chart(fig_metric, use_container_width=True, key=f"metric_{i}")
-            st.markdown(f"<p style='text-align: center; font-size: 10px;'>{label}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='text-align: center; font-size: 9px; margin-top: -10px;'>{label}</p>", unsafe_allow_html=True)
+    
+    # Second row
+    metrics_cols2 = st.columns(3)
+    for i in range(3, 6):
+        label, value = metrics_data[i]
+        with metrics_cols2[i-3]:
+            fig_metric = go.Figure(go.Indicator(
+                mode="gauge+number",
+                value=int(value.strip('%')),
+                domain={'x': [0, 1], 'y': [0, 1]},
+                number={'suffix': '%', 'font': {'size': 12}},
+                gauge={
+                    'axis': {'range': [0, 100], 'visible': False},
+                    'bar': {'color': "white", 'thickness': 0},
+                    'bgcolor': "white",
+                    'borderwidth': 2,
+                    'bordercolor': '#20B2AA',
+                    'steps': [
+                        {'range': [0, int(value.strip('%'))], 'color': '#20B2AA'},
+                        {'range': [int(value.strip('%')), 100], 'color': '#E0E0E0'}
+                    ],
+                }
+            ))
+            fig_metric.update_layout(
+                height=80,
+                margin=dict(l=5, r=5, t=0, b=0)
+            )
+            st.plotly_chart(fig_metric, use_container_width=True, key=f"metric_{i}")
+            st.markdown(f"<p style='text-align: center; font-size: 9px; margin-top: -10px;'>{label}</p>", unsafe_allow_html=True)
