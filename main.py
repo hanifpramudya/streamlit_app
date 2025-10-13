@@ -296,7 +296,7 @@ def show_data_upload():
 def show_dashboard():
     """Display the risk management dashboard"""
     # Header
-    col1, col2 = st.columns([4, 1])
+    col1, col2 = st.columns([5, 1])
     with col1:
         st.title("Risk Management Dashboard")
     with col2:
