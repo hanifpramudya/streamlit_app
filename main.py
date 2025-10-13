@@ -234,30 +234,23 @@ def process_excel_data(uploaded_file):
                 date_columns = [col for col in df_summary.columns if col not in ['Parameter', 'nan-nan']]
                 
                 if len(date_columns) >= 2:
+                    # Convert dataframe to numpy array
                     df_numpy = df_summary.to_numpy()
+                    # Get first row (row 0) as numpy array
                     row_0_numpy = df_numpy[0]
-                    
-                    try:
-                        row_0_float = pd.to_numeric(row_0_numpy, errors='coerce')
-                        nan_mask = np.isnan(row_0_float) == True
-                        nan_indices = np.where(nan_mask)[0]
-                        
-                        if len(nan_indices) > 0:
-                            latest_col_idx = nan_indices[0] - 1
-                            previous_col_idx = nan_indices[0] - 4
-                        else:
-                            latest_col_idx = len(row_0_numpy) - 1
-                            previous_col_idx = len(row_0_numpy) - 4
-                    except:
-                        latest_col_idx = len(row_0_numpy) - 1
-                        previous_col_idx = len(row_0_numpy) - 4
-                    
+                    nan_indices = int(np.where(row_0_numpy == '-')[0][0])
+                    latest_col_idx = nan_indices - 3
+                    previous_col_idx = nan_indices - 6
+
+
+                    # Get column names
                     if previous_col_idx >= 0 and latest_col_idx >= 0:
                         latest_col = df_summary.columns[latest_col_idx]
                         previous_col = df_summary.columns[previous_col_idx]
+
+                        # Create df_summary_present with the two month columns only
                         df_summary_present = df_summary[[previous_col, latest_col]].copy()
-                        df_summary_present.columns = ['Prev Month', 'Present Month']
-                        df_summary_present.insert(0, 'Category', ['Operasional', 'Kepatuhan', 'Reputasi'])
+                        df_summary_present.columns = ['previous_month', 'present_month']
         
         return df_ytd, df_summary_present, True, "Data processed successfully!"
     
@@ -337,7 +330,7 @@ def show_dashboard():
             
             styled_df = st.session_state.df_summary_present.style.applymap(
                 color_cells, 
-                subset=['Prev Month', 'Present Month']
+                subset=['previous_month', 'present_month']
             )
             st.dataframe(styled_df, hide_index=True, use_container_width=True, height=150)
         else:
@@ -346,8 +339,8 @@ def show_dashboard():
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col_nps:
-        st.markdown("#### 💎 NPS Score")
-        st.markdown("**Average Risk** - NPS Score is +78")
+        st.markdown("#### Composite score")
+        st.markdown(f"**Average Risk** - NPS Score is {df_summary_present['present_month'][10]:.2f}")
         
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
