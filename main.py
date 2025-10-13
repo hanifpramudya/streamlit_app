@@ -402,30 +402,23 @@ def show_dashboard():
 
         if nan_mask.any():
             nan_indices = int(np.where(nan_mask)[0][0])
-            latest_col_idx = nan_indices
+            latest_col_idx = nan_indices - 3
+            previous_col_idx = nan_indices - 6
         else:
             latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
+            previous_col_idx = latest_col_idx - 3
 
     # Calculate summary column indices based on selected date
     if st.session_state.df_summary is not None and latest_col_idx is not None:
         try:
-            # Get present month and previous month column indices
-            present_month_col_idx = latest_col_idx - 3
-            prev_month_col_idx = latest_col_idx - 6
-
             # Ensure indices are valid
-            if prev_month_col_idx >= 0 and present_month_col_idx < len(st.session_state.df_summary.columns):
-                present_month_col = st.session_state.df_summary.columns[present_month_col_idx]
-                prev_month_col = st.session_state.df_summary.columns[prev_month_col_idx]
+            if previous_col_idx >= 0 and latest_col_idx >= 0:
+                latest_col = st.session_state.df_summary.columns[latest_col_idx]
+                previous_col = st.session_state.df_summary.columns[previous_col_idx]
 
-                # Create display dataframe
-                if 'Jenis Risiko' in st.session_state.df_summary.columns:
-                    df_summary_display = st.session_state.df_summary[['Jenis Risiko', prev_month_col, present_month_col]].copy()
-                    df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
-                else:
-                    # Use first column as risk category
-                    df_summary_display = st.session_state.df_summary.iloc[:, [0, prev_month_col_idx, present_month_col_idx]].copy()
-                    df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
+                # Create df_summary_display with the two month columns only
+                df_summary_display = st.session_state.df_summary[[previous_col, latest_col]].copy()
+                df_summary_display.columns = ['previous_month', 'present_month']
             else:
                 # Fallback to session state
                 df_summary_display = st.session_state.df_summary_present
