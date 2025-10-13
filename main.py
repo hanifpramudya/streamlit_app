@@ -391,7 +391,7 @@ def show_dashboard():
         matching_cols = np.where([selected_date in str(col) for col in st.session_state.df_summary.columns])[0]
         if len(matching_cols) > 0:
             latest_col_idx = int(matching_cols[-3])  # Get the last matching column
-            prev_col_idx = int(matching_cols[-6])
+            prev_col_idx = latest_col_idx-3
         else:
             # Fallback calculation
             latest_col_idx = (col_position * 3) + 2
