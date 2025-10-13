@@ -611,25 +611,40 @@ def show_dashboard():
                 for tab_idx in range(1, 5):
                     with tabs_pie[tab_idx]:
                         try:
-                            title = pie_titles[tab_idx - 1]
-                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[idx]]
-                            labels = [title, "Others"]
-                            values_pie = [float(value) if pd.notna(value) else 0, 100 - (float(value) if pd.notna(value) else 0)]
+                            # Get values for all four categories
+                            labels = []
+                            values_pie = []
 
+                            for idx, title in enumerate(pie_titles):
+                                value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[idx]]
+                                value_float = float(value) if pd.notna(value) else 0
+                                labels.append(title)
+                                values_pie.append(value_float)
+
+                            # Create full pie chart with all categories
                             fig_pie = go.Figure(data=[go.Pie(
                                 labels=labels,
                                 values=values_pie,
-                                hole=0.3
+                                hole=0.3,
+                                textinfo='label+percent',
+                                textposition='auto'
                             )])
                             fig_pie.update_layout(
-                                title=title,
+                                title=pie_titles[tab_idx - 1],
                                 height=450,
-                                margin=dict(l=20, r=20, t=40, b=20),
-                                showlegend=True
+                                margin=dict(l=20, r=20, t=40, b=80),
+                                showlegend=True,
+                                legend=dict(
+                                    orientation="h",
+                                    yanchor="bottom",
+                                    y=-0.3,
+                                    xanchor="center",
+                                    x=0.5
+                                )
                             )
                             st.plotly_chart(fig_pie, use_container_width=True, key=f"pie_single_{tab_idx}")
-                        except:
-                            st.warning(f"Unable to load data")
+                        except Exception as e:
+                            st.warning(f"Unable to load data: {str(e)}")
             except:
                 st.warning("Unable to load pie chart data")
         else:
