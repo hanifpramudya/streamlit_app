@@ -523,11 +523,12 @@ def show_dashboard():
 
                 # Tabs 1-4: Individual Graphs
                 for tab_idx in range(1, 5):
+                    value_idx = [25,16,26,43]
                     with tabs_line[tab_idx]:
                         try:
                             title = line_titles[tab_idx - 1]
                             dates = [col.split('-')[1] if '-' in col else col for col in present_col_ytd]
-                            values = [st.session_state.df_ytd[col].iloc[14 + (tab_idx - 1)] for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[i]] for col in present_col_ytd]
 
                             fig_line = go.Figure()
                             fig_line.add_trace(go.Scatter(
