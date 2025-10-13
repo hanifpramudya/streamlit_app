@@ -475,6 +475,152 @@ def show_dashboard():
                 else:
                     st.markdown("<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
 
+    # Line Graphs and Pie Charts Section
+    col_graphs, col_pies = st.columns(2)
+
+    # First column - Line Graphs with Tabs
+    with col_graphs:
+        # Line graph titles
+        line_titles = ["Jumlah Pendapatan", "Premi Bruto (All)", "Klaim Bruto (All)", "Agjal Laba (Rugi) Komprehensif"]
+
+        # Create tabs
+        tabs_line = st.tabs(["All Graphs", line_titles[0], line_titles[1], line_titles[2], line_titles[3]])
+
+        # Get present_col_ytd (last 12 months from latest_col_ytd_idx)
+        if st.session_state.df_ytd is not None and latest_col_ytd_idx:
+            try:
+                col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
+                present_col_ytd = st.session_state.df_ytd.columns[max(0, col_position - 11):col_position + 1]
+
+                # Tab 0: All Graphs
+                with tabs_line[0]:
+                    for idx, title in enumerate(line_titles):
+                        try:
+                            # Get data for this metric across present_col_ytd
+                            dates = [col.split('-')[1] if '-' in col else col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[14 + idx] for col in present_col_ytd]
+
+                            # Create line chart
+                            fig_line = go.Figure()
+                            fig_line.add_trace(go.Scatter(
+                                x=dates,
+                                y=values,
+                                mode='lines+markers',
+                                name=title,
+                                line=dict(width=2),
+                                marker=dict(size=6)
+                            ))
+                            fig_line.update_layout(
+                                title=title,
+                                height=200,
+                                margin=dict(l=40, r=20, t=40, b=30),
+                                xaxis=dict(showgrid=True),
+                                yaxis=dict(showgrid=True),
+                                plot_bgcolor='white'
+                            )
+                            st.plotly_chart(fig_line, use_container_width=True, key=f"line_all_{idx}")
+                        except:
+                            st.warning(f"Unable to load data for {title}")
+
+                # Tabs 1-4: Individual Graphs
+                for tab_idx in range(1, 5):
+                    with tabs_line[tab_idx]:
+                        try:
+                            title = line_titles[tab_idx - 1]
+                            dates = [col.split('-')[1] if '-' in col else col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[14 + (tab_idx - 1)] for col in present_col_ytd]
+
+                            fig_line = go.Figure()
+                            fig_line.add_trace(go.Scatter(
+                                x=dates,
+                                y=values,
+                                mode='lines+markers',
+                                name=title,
+                                line=dict(width=3),
+                                marker=dict(size=8)
+                            ))
+                            fig_line.update_layout(
+                                title=title,
+                                height=450,
+                                margin=dict(l=40, r=20, t=40, b=30),
+                                xaxis=dict(showgrid=True),
+                                yaxis=dict(showgrid=True),
+                                plot_bgcolor='white'
+                            )
+                            st.plotly_chart(fig_line, use_container_width=True, key=f"line_single_{tab_idx}")
+                        except:
+                            st.warning(f"Unable to load data")
+            except:
+                st.warning("Unable to load line graph data")
+        else:
+            st.warning("No data available for line graphs")
+
+    # Second column - Pie Charts with Tabs
+    with col_pies:
+        # Pie chart titles
+        pie_titles = ["Deposito Berjangka", "Obligasi Korporasi", "Surat Berharga yang Diterbitkan oleh Negara RI", "Reksa Dana"]
+
+        # Create tabs
+        tabs_pie = st.tabs(["All Graphs", pie_titles[0], pie_titles[1], pie_titles[2], pie_titles[3]])
+
+        if st.session_state.df_ytd is not None and latest_col_ytd_idx:
+            try:
+                col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
+                present_col_ytd = st.session_state.df_ytd.columns[max(0, col_position - 11):col_position + 1]
+
+                # Tab 0: All Graphs
+                with tabs_pie[0]:
+                    for idx, title in enumerate(pie_titles):
+                        try:
+                            # Get latest value for pie chart
+                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[18 + idx]
+                            # Create simple pie chart showing proportion
+                            labels = [title, "Others"]
+                            values_pie = [float(value) if pd.notna(value) else 0, 100 - (float(value) if pd.notna(value) else 0)]
+
+                            fig_pie = go.Figure(data=[go.Pie(
+                                labels=labels,
+                                values=values_pie,
+                                hole=0.3
+                            )])
+                            fig_pie.update_layout(
+                                title=title,
+                                height=200,
+                                margin=dict(l=20, r=20, t=40, b=20),
+                                showlegend=True
+                            )
+                            st.plotly_chart(fig_pie, use_container_width=True, key=f"pie_all_{idx}")
+                        except:
+                            st.warning(f"Unable to load data for {title}")
+
+                # Tabs 1-4: Individual Pie Charts
+                for tab_idx in range(1, 5):
+                    with tabs_pie[tab_idx]:
+                        try:
+                            title = pie_titles[tab_idx - 1]
+                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[18 + (tab_idx - 1)]
+                            labels = [title, "Others"]
+                            values_pie = [float(value) if pd.notna(value) else 0, 100 - (float(value) if pd.notna(value) else 0)]
+
+                            fig_pie = go.Figure(data=[go.Pie(
+                                labels=labels,
+                                values=values_pie,
+                                hole=0.3
+                            )])
+                            fig_pie.update_layout(
+                                title=title,
+                                height=450,
+                                margin=dict(l=20, r=20, t=40, b=20),
+                                showlegend=True
+                            )
+                            st.plotly_chart(fig_pie, use_container_width=True, key=f"pie_single_{tab_idx}")
+                        except:
+                            st.warning(f"Unable to load data")
+            except:
+                st.warning("Unable to load pie chart data")
+        else:
+            st.warning("No data available for pie charts")
+
     # Additional Metrics Section - 3 columns with multiple rows
     col_a, col_b, col_c = st.columns(3)
 
