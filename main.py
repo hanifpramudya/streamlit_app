@@ -564,7 +564,7 @@ def show_dashboard():
     # First column - Line Graphs with Tabs
     with col_graphs:
         # Line graph titles
-        line_titles = ["Jumlah Pendapatan", "Premi Bruto (All)", "Klaim Bruto (All)", "Agjal Laba (Rugi) Komprehensif"]
+        line_titles = ["Jumlah Pendapatan", "Premi Bruto (All)", "Klaim Bruto (All)", "Total Laba (Rugi) Komprehensif"]
 
         # Create tabs
         tabs_line = st.tabs(["All Graphs", line_titles[0], line_titles[1], line_titles[2], line_titles[3]])
