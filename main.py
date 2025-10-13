@@ -345,10 +345,13 @@ def show_dashboard():
     with col1:
         st.title("Risk Management Dashboard")
     with col2:
-        try:
-            st.image("Logo.png", width = 250)
-        except:
-            st.write("🏢")
+        with st.container(border=True):
+            st.markdown("#### Legend")
+            st.markdown('<span style="color: #90d050; font-size: 20px;">●</span> Low', unsafe_allow_html=True)
+            st.markdown('<span style="color: #fff2cc; font-size: 20px;">●</span> Low to Moderate', unsafe_allow_html=True)
+            st.markdown('<span style="color: #ffff00; font-size: 20px;">●</span> Moderate', unsafe_allow_html=True)
+            st.markdown('<span style="color: #ffc001; font-size: 20px;">●</span> Moderate to High', unsafe_allow_html=True)
+            st.markdown('<span style="color: #ff0000; font-size: 20px;">●</span> High', unsafe_allow_html=True)
     
     # Date selector
     date_col1, date_col2 = st.columns([1, 5])
@@ -371,7 +374,7 @@ def show_dashboard():
     # Summary Section
     st.markdown("### Summary")
     
-    col_summary, col_nps, col_legend = st.columns([3, 2, 1.2])
+    col_summary, col_nps= st.columns([3, 2])
     
     with col_summary:
         st.markdown('<div class="risk-table">', unsafe_allow_html=True)
@@ -438,15 +441,6 @@ def show_dashboard():
         ))
         fig.update_layout(height=280, margin=dict(l=20, r=20, t=0, b=20))
         st.plotly_chart(fig, use_container_width=True, key="nps_gauge")
-    
-    with col_legend:
-        with st.container(border=True):
-            st.markdown("#### Legend")
-            st.markdown('<span style="color: #90d050; font-size: 20px;">●</span> Low', unsafe_allow_html=True)
-            st.markdown('<span style="color: #fff2cc; font-size: 20px;">●</span> Low to Moderate', unsafe_allow_html=True)
-            st.markdown('<span style="color: #ffff00; font-size: 20px;">●</span> Moderate', unsafe_allow_html=True)
-            st.markdown('<span style="color: #ffc001; font-size: 20px;">●</span> Moderate to High', unsafe_allow_html=True)
-            st.markdown('<span style="color: #ff0000; font-size: 20px;">●</span> High', unsafe_allow_html=True)
     
     # Dropdown for risk type
     risk_types = ["Keseluruhan Risiko"]
