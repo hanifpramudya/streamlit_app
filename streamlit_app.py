@@ -134,7 +134,8 @@ with col_summary:
     # Display as colored table
     st.markdown('<div class="risk-table">', unsafe_allow_html=True)
     
-    df = pd.DataFrame(risk_data)
+    df_ytd = df_ytd
+    df_summary_present = df_summary_present
     
     # Create custom styled table
     def color_cells(val):
@@ -145,7 +146,7 @@ with col_summary:
         else:
             return ''
     
-    styled_df = df.style.applymap(color_cells, subset=['Prev Month', 'Present Month'])
+    styled_df = df_summary_present.style.applymap(color_cells, subset=['Prev Month', 'Present Month'])
     st.dataframe(styled_df, hide_index=True, use_container_width=True, height=150)
     st.markdown('</div>', unsafe_allow_html=True)
 
