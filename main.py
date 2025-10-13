@@ -395,12 +395,44 @@ def show_dashboard():
         latest_col_ytd_idx = None
         col_position = None
 
+    # Create dynamic df_summary_present based on selected date
+    df_summary_display = None
+    if st.session_state.df_summary is not None and col_position is not None:
+        # Map col_position from df_ytd to corresponding columns in df_summary
+        # df_summary has 3 columns per date (weighted, score, classification)
+        # So we calculate the corresponding summary column index
+        summary_col_idx = (col_position * 3) + 2  # Adjust based on your data structure
+        summary_prev_col_idx = summary_col_idx - 3
+
+        try:
+            if summary_prev_col_idx >= 2 and summary_col_idx < len(st.session_state.df_summary.columns):
+                latest_col = st.session_state.df_summary.columns[summary_col_idx]
+                previous_col = st.session_state.df_summary.columns[summary_prev_col_idx]
+
+                # Check if 'Jenis Risiko' column exists
+                if 'Jenis Risiko' in st.session_state.df_summary.columns:
+                    df_summary_display = st.session_state.df_summary[['Jenis Risiko', previous_col, latest_col]].copy()
+                    df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
+                else:
+                    # Use first column as risk category
+                    df_summary_display = st.session_state.df_summary.iloc[:, [0, summary_prev_col_idx, summary_col_idx]].copy()
+                    df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
+            else:
+                # Fallback to session state
+                df_summary_display = st.session_state.df_summary_present
+        except:
+            # Fallback to session state
+            df_summary_display = st.session_state.df_summary_present
+    else:
+        # Fallback to session state
+        df_summary_display = st.session_state.df_summary_present
+
     col_summary, col_nps= st.columns([3, 2])
-    
+
     with col_summary:
         st.markdown('<div class="risk-table">', unsafe_allow_html=True)
-        
-        if st.session_state.df_summary_present is not None:
+
+        if df_summary_display is not None:
             def color_cells(val):
                 try:
                     val_float = float(val)
@@ -418,21 +450,21 @@ def show_dashboard():
                         return ''
                 except:
                     return ''
-            
-            styled_df = st.session_state.df_summary_present[:9].style.map(
-                color_cells, 
+
+            styled_df = df_summary_display[:9].style.map(
+                color_cells,
                 subset=['previous_month', 'present_month']
             )
             st.dataframe(styled_df, hide_index=True, use_container_width=True, height=350)
         else:
             st.warning("No data available. Please upload data first.")
-        
+
         st.markdown('</div>', unsafe_allow_html=True)
-    
+
     with col_nps:
-        # Safely get the composite score
+        # Safely get the composite score from dynamic display data
         try:
-            composite_score = float(st.session_state.df_summary_present['present_month'].iloc[10])
+            composite_score = float(df_summary_display['present_month'].iloc[10])
         except:
             composite_score = 0.0
 
