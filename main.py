@@ -371,7 +371,7 @@ def show_dashboard():
     # Summary Section
     st.markdown("### Summary")
     
-    col_summary, col_nps, col_legend = st.columns([2, 1.5, 1])
+    col_summary, col_nps, col_legend = st.columns([3, 2, 1.2])
     
     with col_summary:
         st.markdown('<div class="risk-table">', unsafe_allow_html=True)
@@ -399,7 +399,7 @@ def show_dashboard():
                 color_cells, 
                 subset=['previous_month', 'present_month']
             )
-            st.dataframe(styled_df, hide_index=True, use_container_width=True, height=180)
+            st.dataframe(styled_df, hide_index=True, use_container_width=True, height=350)
         else:
             st.warning("No data available. Please upload data first.")
         
@@ -407,6 +407,7 @@ def show_dashboard():
     
     with col_nps:
         st.markdown("#### Composite score")
+        st.markdown("")
         
         # Safely get the composite score
         try:
@@ -414,18 +415,18 @@ def show_dashboard():
         except:
             composite_score = 0.0
         
-        st.markdown(f"**Average Risk** - NPS Score is {composite_score:.2f}")
+        st.markdown(f"<p style='text-align: center;'><strong>Average Risk</strong><br>NPS Score is {composite_score:.2f}</p>", unsafe_allow_html=True)
         
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
             value=composite_score,
             domain={'x': [0, 1], 'y': [0, 1]},
-            number={'font': {'size': 20}},
+            number={'font': {'size': 32}},
             gauge={
-                'axis': {'range': [None, 5], 'tickwidth': 2.5},
-                'bar': {'color': "black"},
+                'axis': {'range': [None, 5], 'tickwidth': 2},
+                'bar': {'color': "black", 'thickness': 0.3},
                 'bgcolor': "white",
-                'borderwidth': 2.5,
+                'borderwidth': 2,
                 'steps': [
                     {'range': [0, 1.80], 'color': '#90d050'},
                     {'range': [1.80, 2.60], 'color': '#fff2cc'},
@@ -435,17 +436,25 @@ def show_dashboard():
                 ],
             }
         ))
-        fig.update_layout(height=180, margin=dict(l=10, r=10, t=10, b=10))
+        fig.update_layout(height=280, margin=dict(l=20, r=20, t=0, b=20))
         st.plotly_chart(fig, use_container_width=True, key="nps_gauge")
     
     with col_legend:
+        st.markdown("#### &nbsp;")
         st.markdown("")
         st.markdown("")
-        st.markdown('<span style="color: #90d050;">●</span> Low', unsafe_allow_html=True)
-        st.markdown('<span style="color: #fff2cc;">●</span> Low to Moderate', unsafe_allow_html=True)
-        st.markdown('<span style="color: #ffff00;">●</span> Moderate', unsafe_allow_html=True)
-        st.markdown('<span style="color: #ffc001;">●</span> Moderate to High', unsafe_allow_html=True)
-        st.markdown('<span style="color: #ff0000;">●</span> High', unsafe_allow_html=True)
+        st.markdown("")
+        st.markdown('<div style="padding: 10px;">', unsafe_allow_html=True)
+        st.markdown('<span style="color: #90d050; font-size: 20px;">●</span> Low', unsafe_allow_html=True)
+        st.markdown("")
+        st.markdown('<span style="color: #fff2cc; font-size: 20px;">●</span> Low to Moderate', unsafe_allow_html=True)
+        st.markdown("")
+        st.markdown('<span style="color: #ffff00; font-size: 20px;">●</span> Moderate', unsafe_allow_html=True)
+        st.markdown("")
+        st.markdown('<span style="color: #ffc001; font-size: 20px;">●</span> Moderate to High', unsafe_allow_html=True)
+        st.markdown("")
+        st.markdown('<span style="color: #ff0000; font-size: 20px;">●</span> High', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Dropdown for risk type
     risk_types = ["Keseluruhan Risiko"]
