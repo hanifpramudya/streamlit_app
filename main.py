@@ -120,12 +120,14 @@ if 'page' not in st.session_state:
     st.session_state.page = 'menu'
 if 'df_ytd' not in st.session_state:
     st.session_state.df_ytd = None
+if 'df_summary' not in st.session_state:
+    st.session_state.df_summary = None
 if 'df_summary_present' not in st.session_state:
     st.session_state.df_summary_present = None
 if 'uploaded_file' not in st.session_state:
     st.session_state.uploaded_file = None
-if 'df_summary' not in st.session_state:
-    st.session_state.uploaded_file = None
+if 'latest_col_idx' not in st.session_state:
+    st.session_state.latest_col_idx = None
 
 def process_excel_data(uploaded_file):
     """Process Excel file and return cleaned dataframes"""
@@ -158,7 +160,7 @@ def process_excel_data(uploaded_file):
             df_ytd.columns = new_cols
             
             if len(df_ytd) > 0:
-                df_ytd.iloc[0] = df_ytd.iloc[0].fillna(method='ffill')
+                df_ytd.iloc[0] = df_ytd.iloc[0].ffill()
             
             if len(df_ytd) > 0:
                 new_columns = []
@@ -173,14 +175,16 @@ def process_excel_data(uploaded_file):
                 df_ytd = df_ytd.iloc[1:].reset_index(drop=True)
 
                 df_ytd_numpy = df_ytd.to_numpy()
-                # Get first row (row 0) as numpy array
                 row_0_ytd_numpy = df_ytd_numpy[0]
                 nan_indices = int(np.where(pd.isna(row_0_ytd_numpy))[0][0])
                 latest_col_ytd_idx = nan_indices
                 present_col_ytd = df_ytd.columns[max(0, latest_col_ytd_idx - 13):latest_col_ytd_idx]
 
         # Process Summary sheet
+        df_summary = None
         df_summary_present = None
+        latest_col_idx = None
+        
         if "Summary" in excel_file.sheet_names:
             df_summary = pd.read_excel(uploaded_file, sheet_name="Summary")
             
@@ -195,7 +199,7 @@ def process_excel_data(uploaded_file):
             df_summary = df_summary.iloc[1:].reset_index(drop=True)
             
             if len(df_summary) > 0:
-                df_summary.iloc[0] = df_summary.iloc[0].fillna(method='ffill')
+                df_summary.iloc[0] = df_summary.iloc[0].ffill()
             
             if len(df_summary) > 1:
                 first_nan = True
@@ -243,27 +247,31 @@ def process_excel_data(uploaded_file):
                 date_columns = [col for col in df_summary.columns if col not in ['Parameter', 'nan-nan']]
                 
                 if len(date_columns) >= 2:
-                    # Convert dataframe to numpy array
                     df_numpy = df_summary.to_numpy()
-                    # Get first row (row 0) as numpy array
                     row_0_numpy = df_numpy[0]
-                    nan_indices = int(np.where(row_0_numpy == '-')[0][0])
-                    latest_col_idx = nan_indices - 3
-                    previous_col_idx = nan_indices - 6
+                    nan_mask = row_0_numpy == '-'
+                    if nan_mask.any():
+                        nan_indices = int(np.where(nan_mask)[0][0])
+                        latest_col_idx = nan_indices - 3
+                        previous_col_idx = nan_indices - 6
 
-                    # Get column names
-                    if previous_col_idx >= 0 and latest_col_idx >= 0:
-                        latest_col = df_summary.columns[latest_col_idx]
-                        previous_col = df_summary.columns[previous_col_idx]
+                        if previous_col_idx >= 0 and latest_col_idx >= 0:
+                            latest_col = df_summary.columns[latest_col_idx]
+                            previous_col = df_summary.columns[previous_col_idx]
 
-                        # Create df_summary_present with the two month columns only
-                        df_summary_present = df_summary[[df_summary[['Jenis Risiko']],previous_col, latest_col]].copy()
-                        df_summary_present.columns = ['previous_month', 'present_month']
+                            # Check if 'Jenis Risiko' column exists
+                            if 'Jenis Risiko' in df_summary.columns:
+                                df_summary_present = df_summary[['Jenis Risiko', previous_col, latest_col]].copy()
+                                df_summary_present.columns = ['Kategori Risiko', 'previous_month', 'present_month']
+                            else:
+                                # Use first column as risk category
+                                df_summary_present = df_summary.iloc[:, [0, previous_col_idx, latest_col_idx]].copy()
+                                df_summary_present.columns = ['Kategori Risiko', 'previous_month', 'present_month']
         
-        return df_ytd, df_summary_present, True, "Data processed successfully!"
+        return df_ytd, df_summary, df_summary_present, latest_col_idx, True, "Data processed successfully!"
     
     except Exception as e:
-        return None, None, False, f"Error processing file: {str(e)}"
+        return None, None, None, None, False, f"Error processing file: {str(e)}"
 
 def show_data_upload():
     """Display data upload interface"""
@@ -272,14 +280,16 @@ def show_data_upload():
     uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx', 'xls'])
     
     if uploaded_file is not None:
-        df_ytd, df_summary_present, success, message = process_excel_data(uploaded_file)
+        df_ytd, df_summary, df_summary_present, latest_col_idx, success, message = process_excel_data(uploaded_file)
         
         if success:
             st.success(f"✅ {message}")
             
             # Store in session state
             st.session_state.df_ytd = df_ytd
+            st.session_state.df_summary = df_summary
             st.session_state.df_summary_present = df_summary_present
+            st.session_state.latest_col_idx = latest_col_idx
             st.session_state.uploaded_file = uploaded_file
             
             # Display preview
@@ -302,29 +312,46 @@ def show_data_upload():
         st.write("**Note:** The file should contain sheets named 'Data_YTD' and 'Summary'")
 
 def show_dashboard():
-    #initiate variables
-    ## summary
+    """Display the risk management dashboard"""
+    
+    # Check if data is loaded
+    if st.session_state.df_summary is None or st.session_state.df_summary_present is None:
+        st.error("No data loaded. Please upload data first.")
+        return
+    
+    # Initialize variables
     df_numpy = st.session_state.df_summary.to_numpy()
     row_0_numpy = df_numpy[0]
-    nan_indices = int(np.where(row_0_numpy == '-')[0][0])
-    latest_col_idx = nan_indices - 3
+    nan_mask = row_0_numpy == '-'
+    
+    if nan_mask.any():
+        nan_indices = int(np.where(nan_mask)[0][0])
+        latest_col_idx = nan_indices - 3
+    else:
+        latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
 
-
-    """Display the risk management dashboard"""
     # Header
     col1, col2 = st.columns([5, 1])
     with col1:
         st.title("Risk Management Dashboard")
     with col2:
-        st.image("Logo.png")
+        try:
+            st.image("Logo.png")
+        except:
+            st.write("🏢")
     
     # Date selector
     date_col1, date_col2 = st.columns([1, 5])
     with date_col1:
-        selected_date = selected_date = st.selectbox(
-    f"Select Date",  # Label for the selectbox
-    options=st.session_state.df_summary.columns[:latest_col_idx],
-    index=st.session_state.latest_col_idx - 1)  # Default to the latest column
+        available_dates = list(st.session_state.df_summary.columns[:latest_col_idx])
+        if available_dates:
+            selected_date = st.selectbox(
+                "Select Date",
+                options=available_dates,
+                index=min(latest_col_idx - 1, len(available_dates) - 1)
+            )
+        else:
+            st.warning("No dates available")
 
     # Summary Section
     st.markdown("### Summary")
@@ -347,9 +374,9 @@ def show_dashboard():
                 except:
                     return ''
             
-            styled_df = st.session_state.df_summary_present.style.applymap(
+            styled_df = st.session_state.df_summary_present.style.map(
                 color_cells, 
-                subset=['Kategori Risiko','previous_month', 'present_month']
+                subset=['previous_month', 'present_month']
             )
             st.dataframe(styled_df, hide_index=True, use_container_width=True, height=150)
         else:
@@ -359,11 +386,18 @@ def show_dashboard():
     
     with col_nps:
         st.markdown("#### Composite score")
-        st.markdown(f"**Average Risk** - NPS Score is {st.session_state.df_summary_present['present_month'][10]:.2f}")
+        
+        # Safely get the composite score
+        try:
+            composite_score = float(st.session_state.df_summary_present['present_month'].iloc[10])
+        except:
+            composite_score = 0.0
+        
+        st.markdown(f"**Average Risk** - NPS Score is {composite_score:.2f}")
         
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
-            value=f"{st.session_state.df_summary_present['present_month'][10]:.2f}",
+            value=composite_score,
             domain={'x': [0, 1], 'y': [0, 1]},
             number={'font': {'size': 20}},
             gauge={
@@ -393,7 +427,11 @@ def show_dashboard():
         st.markdown("🔴 High")
     
     # Dropdown for risk type
-    st.selectbox(np.append(df_summary['Jenis Risiko'][:9].to_numpy(), "Keseluruhan Risiko"), ["Keseluruhan Risiko"], label_visibility="collapsed")
+    risk_types = ["Keseluruhan Risiko"]
+    if 'Jenis Risiko' in st.session_state.df_summary.columns:
+        risk_types.extend(st.session_state.df_summary['Jenis Risiko'][:9].tolist())
+    
+    st.selectbox("Select Risk Type", risk_types, label_visibility="collapsed")
     
     # Survey and GRC Section
     col1, col2, col3, col4, col5, col6, col7, col8, col9, col10 = st.columns(10)
@@ -578,7 +616,7 @@ def main():
         
         # Data status
         st.subheader("Data Status")
-        if st.session_state.df_ytd is not None:
+        if st.session_state.df_ytd is not None and st.session_state.df_summary is not None:
             st.success("✅ Data loaded")
         else:
             st.warning("⚠️ No data loaded")
