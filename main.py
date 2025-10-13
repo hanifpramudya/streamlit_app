@@ -180,8 +180,8 @@ def process_excel_data(uploaded_file):
                 df_ytd_numpy = df_ytd.to_numpy()
                 row_0_ytd_numpy = df_ytd_numpy[0]
                 nan_indices = int(np.where(pd.isna(row_0_ytd_numpy))[0][0])
-                latest_col_ytd_idx = nan_indices
-                present_col_ytd = df_ytd.columns[max(0, latest_col_ytd_idx - 13):latest_col_ytd_idx]
+                latest_col_ytd_idx = df_ytd.columns[nan_indices]
+                present_col_ytd = df_ytd.columns[max(0, nan_indices - 13):nan_indices]
 
         # Process Summary sheet
         df_summary = None
@@ -411,16 +411,16 @@ def show_dashboard():
             domain={'x': [0, 1], 'y': [0, 1]},
             number={'font': {'size': 20}},
             gauge={
-                'axis': {'range': [None, 100], 'tickwidth': 1},
+                'axis': {'range': [None, 5], 'tickwidth': 1},
                 'bar': {'color': "black"},
                 'bgcolor': "white",
                 'borderwidth': 2,
                 'steps': [
-                    {'range': [0, 20], 'color': '#90d050'},
-                    {'range': [20, 40], 'color': '#fff2cc'},
-                    {'range': [40, 60], 'color': '#ffff00'},
-                    {'range': [60, 80], 'color': '#ffc001'},
-                    {'range': [80, 100], 'color': '#ff0000'}
+                    {'range': [0, 1.80], 'color': '#90d050'},
+                    {'range': [1.80, 2.60], 'color': '#fff2cc'},
+                    {'range': [2.60, 3.40], 'color': '#ffff00'},
+                    {'range': [3.40, 4.20], 'color': '#ffc001'},
+                    {'range': [4.20, 5], 'color': '#ff0000'}
                 ],
             }
         ))
