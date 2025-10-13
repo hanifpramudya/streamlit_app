@@ -448,24 +448,32 @@ def show_dashboard():
     
     st.selectbox("Select Risk Type", risk_types, label_visibility="collapsed")
     
-    # Survey and GRC Section
-    col1, col2, col3, col4, col5, col6, col7, col8, col9, col10 = st.columns(10)
-    
-    survey_cols = [col1, col2, col3, col4, col5, col6, col7, col8]
-    for i, col in enumerate(survey_cols):
+    # Financial Metrics Section
+    titles = ["Jumlah Aset", "Jumlah Utang", "Jumlah Ekuitas", "Jumlah Polis", "Kas dan Bank", "Aset Investasi", "RBC"]
+
+    # Create 7 columns: 6 equal-sized, 1 larger for RBC
+    col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 1, 1, 1, 1, 1, 1.5])
+    cols = [col1, col2, col3, col4, col5, col6, col7]
+
+    # Display all 7 containers
+    for i, col in enumerate(cols):
         with col:
-            st.markdown('<div class="survey-card">', unsafe_allow_html=True)
-            st.markdown('<div class="survey-label">Survey</div>', unsafe_allow_html=True)
-            st.markdown('<div class="survey-number">60</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-    
-    grc_cols = [col9, col10]
-    for i, col in enumerate(grc_cols):
-        with col:
-            st.markdown('<div class="grc-card">', unsafe_allow_html=True)
-            st.markdown('<div class="survey-label">GRC</div>', unsafe_allow_html=True)
-            st.markdown('<div class="grc-number">06</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            with st.container(border=True):
+                # Display title
+                st.markdown(f"<div style='text-align: center; color: #999; font-size: 12px;'>{titles[i]}</div>", unsafe_allow_html=True)
+                # Get value from df_ytd
+                if st.session_state.df_ytd is not None and latest_col_ytd_idx:
+                    try:
+                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[i]
+                        # RBC gets larger and red font
+                        if i == 6:
+                            st.markdown(f"<div style='text-align: center; font-size: 32px; font-weight: bold; color: #ff6347; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
+                        else:
+                            st.markdown(f"<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
+                    except:
+                        st.markdown("<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
     
     # Bottom Section
     col_left, col_middle, col_right = st.columns([1, 2, 2])
