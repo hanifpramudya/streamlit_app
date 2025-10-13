@@ -373,17 +373,6 @@ def show_dashboard():
         else:
             st.warning("No dates available")
 
-    # Initialize variables based on selected date
-    df_numpy = st.session_state.df_summary.to_numpy()
-    row_0_numpy = df_numpy[0]
-    nan_mask = row_0_numpy == '-'
-
-    if nan_mask.any():
-        nan_indices = int(np.where(nan_mask)[0][0])
-        latest_col_idx = nan_indices - 3
-    else:
-        latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
-
     # Get latest_col_ytd_idx from selected_date or session state
     if selected_date and st.session_state.df_ytd is not None:
         latest_col_ytd_idx = selected_date
@@ -394,6 +383,28 @@ def show_dashboard():
     else:
         latest_col_ytd_idx = None
         col_position = None
+
+    # Calculate latest_col_idx based on col_position
+    # Map col_position from df_ytd to df_summary (assuming 3 columns per date in summary)
+    if col_position is not None and st.session_state.df_summary is not None:
+        # df_summary typically has 3 columns per date period (weighted, score, classification)
+        # Adjust the multiplier based on your actual data structure
+        latest_col_idx = (col_position * 3) + 2  # +2 to get the classification column
+
+        # Ensure the index is within bounds
+        if latest_col_idx >= len(st.session_state.df_summary.columns):
+            latest_col_idx = len(st.session_state.df_summary.columns) - 1
+    else:
+        # Fallback: calculate from df_summary statically
+        df_numpy = st.session_state.df_summary.to_numpy()
+        row_0_numpy = df_numpy[0]
+        nan_mask = row_0_numpy == '-'
+
+        if nan_mask.any():
+            nan_indices = int(np.where(nan_mask)[0][0])
+            latest_col_idx = nan_indices - 3
+        else:
+            latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
 
     # Calculate summary column indices based on selected date
     if st.session_state.df_summary is not None and latest_col_idx is not None:
