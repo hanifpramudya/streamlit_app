@@ -492,12 +492,13 @@ def show_dashboard():
                 present_col_ytd = st.session_state.df_ytd.columns[max(0, col_position - 11):col_position + 1]
 
                 # Tab 0: All Graphs
+                value_idx = [25, 16, 26, 43]
                 with tabs_line[0]:
                     for idx, title in enumerate(line_titles):
                         try:
                             # Get data for this metric across present_col_ytd
-                            dates = [col.split('-')[1] if '-' in col else col for col in present_col_ytd]
-                            values = [st.session_state.df_ytd[col].iloc[14 + idx] for col in present_col_ytd]
+                            dates = [col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[idx]] for col in present_col_ytd]
 
                             # Create line chart
                             fig_line = go.Figure()
@@ -527,7 +528,7 @@ def show_dashboard():
                     with tabs_line[tab_idx]:
                         try:
                             title = line_titles[tab_idx - 1]
-                            dates = [col.split('-')[1] if '-' in col else col for col in present_col_ytd]
+                            dates = [col for col in present_col_ytd]
                             values = [st.session_state.df_ytd[col].iloc[value_idx[tab_idx - 1]] for col in present_col_ytd]
 
                             fig_line = go.Figure()
