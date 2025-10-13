@@ -169,7 +169,14 @@ def process_excel_data(uploaded_file):
                 
                 df_ytd.columns = new_columns
                 df_ytd = df_ytd.iloc[1:].reset_index(drop=True)
-        
+
+                df_ytd_numpy = df_ytd.to_numpy()
+                # Get first row (row 0) as numpy array
+                row_0_ytd_numpy = df_ytd_numpy[0]
+                nan_indices = int(np.where(pd.isna(row_0_ytd_numpy))[0][0])
+                latest_col_ytd_idx = nan_indices
+                present_col_ytd = df_ytd.columns[max(0, latest_col_ytd_idx - 13):latest_col_ytd_idx]
+
         # Process Summary sheet
         df_summary_present = None
         if "Summary" in excel_file.sheet_names:
@@ -242,14 +249,13 @@ def process_excel_data(uploaded_file):
                     latest_col_idx = nan_indices - 3
                     previous_col_idx = nan_indices - 6
 
-
                     # Get column names
                     if previous_col_idx >= 0 and latest_col_idx >= 0:
                         latest_col = df_summary.columns[latest_col_idx]
                         previous_col = df_summary.columns[previous_col_idx]
 
                         # Create df_summary_present with the two month columns only
-                        df_summary_present = df_summary[[previous_col, latest_col]].copy()
+                        df_summary_present = df_summary[[df_summary[['Jenis Risiko']],previous_col, latest_col]].copy()
                         df_summary_present.columns = ['previous_month', 'present_month']
         
         return df_ytd, df_summary_present, True, "Data processed successfully!"
@@ -305,7 +311,7 @@ def show_dashboard():
     # Date selector
     date_col1, date_col2 = st.columns([1, 5])
     with date_col1:
-        selected_date = st.selectbox("", ["Maret 2025"], label_visibility="collapsed")
+        selected_date = st.selectbox(st.session_state.df_summary.columns[:latest_col_idx], [f"{st.session_state.df_summary.columns[latest_col_idx]}"], label_visibility="collapsed")
     
     # Summary Section
     st.markdown("### Summary")
@@ -330,7 +336,7 @@ def show_dashboard():
             
             styled_df = st.session_state.df_summary_present.style.applymap(
                 color_cells, 
-                subset=['previous_month', 'present_month']
+                subset=['Kategori Risiko','previous_month', 'present_month']
             )
             st.dataframe(styled_df, hide_index=True, use_container_width=True, height=150)
         else:
@@ -344,7 +350,7 @@ def show_dashboard():
         
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
-            value=78,
+            value=f"{st.session_state.df_summary_present['present_month'][10]:.2f}",
             domain={'x': [0, 1], 'y': [0, 1]},
             number={'font': {'size': 20}},
             gauge={
@@ -374,7 +380,7 @@ def show_dashboard():
         st.markdown("🔴 High")
     
     # Dropdown for risk type
-    st.selectbox("Keseluruhan Risiko", ["Keseluruhan Risiko"], label_visibility="collapsed")
+    st.selectbox(np.append(df_summary['Jenis Risiko'][:9].to_numpy(), "Keseluruhan Risiko"), ["Keseluruhan Risiko"], label_visibility="collapsed")
     
     # Survey and GRC Section
     col1, col2, col3, col4, col5, col6, col7, col8, col9, col10 = st.columns(10)
