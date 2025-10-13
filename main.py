@@ -300,7 +300,7 @@ def show_dashboard():
     with col1:
         st.title("Risk Management Dashboard")
     with col2:
-        st.image("/Users/hanifpramudya/streamlit project/streamlit_app/streamlit_app/Logo.png", width=120)
+        st.image("Logo.png", width=120)
     
     # Date selector
     date_col1, date_col2 = st.columns([1, 5])
