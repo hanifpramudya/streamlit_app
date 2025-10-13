@@ -474,7 +474,58 @@ def show_dashboard():
                         st.markdown("<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
                 else:
                     st.markdown("<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
-    
+
+    # Additional Metrics Section - 3 columns with multiple rows
+    col_a, col_b, col_c = st.columns(3)
+
+    # First column - 3 rows
+    with col_a:
+        titles_col_a = ["Jumlah Pengaduan", "Indak Lanjut Pengaduan", "Jumlah Pemberitaan Negatif Dalam 1 Tahun"]
+        for i, title in enumerate(titles_col_a):
+            with st.container(border=True):
+                st.markdown(f"<div style='text-align: center; color: #999; font-size: 12px;'>{title}</div>", unsafe_allow_html=True)
+                if st.session_state.df_ytd is not None and latest_col_ytd_idx:
+                    try:
+                        # Offset index by 7 since previous section used 0-6
+                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[7 + i]
+                        st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
+                    except:
+                        st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+
+    # Second column - 2 rows
+    with col_b:
+        titles_col_b = ["Jumlah Gugatan", "Jumlah Nominal Gugatan Yang Sedang Diajukan"]
+        for i, title in enumerate(titles_col_b):
+            with st.container(border=True):
+                st.markdown(f"<div style='text-align: center; color: #999; font-size: 12px;'>{title}</div>", unsafe_allow_html=True)
+                if st.session_state.df_ytd is not None and latest_col_ytd_idx:
+                    try:
+                        # Offset index by 10 (7 from first section + 3 from col_a)
+                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[10 + i]
+                        st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
+                    except:
+                        st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+
+    # Third column - 2 rows
+    with col_c:
+        titles_col_c = ["Jumlah Pelanggaran Atas Ketentuan", "Jumlah Denda"]
+        for i, title in enumerate(titles_col_c):
+            with st.container(border=True):
+                st.markdown(f"<div style='text-align: center; color: #999; font-size: 12px;'>{title}</div>", unsafe_allow_html=True)
+                if st.session_state.df_ytd is not None and latest_col_ytd_idx:
+                    try:
+                        # Offset index by 12 (7 + 3 + 2)
+                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[12 + i]
+                        st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
+                    except:
+                        st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+
     # Bottom Section
     col_left, col_middle, col_right = st.columns([1, 2, 2])
     
