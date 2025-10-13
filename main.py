@@ -617,6 +617,8 @@ def main():
     
     # Sidebar navigation
     with st.sidebar:
+        st.image.sidebar("Logo.png")
+
         st.title("Navigation")
         
         if st.button("🏠 Home", use_container_width=True):
