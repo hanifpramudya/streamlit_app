@@ -569,30 +569,43 @@ def show_dashboard():
                 col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
                 present_col_ytd = st.session_state.df_ytd.columns[max(0, col_position - 11):col_position + 1]
 
-                # Tab 0: All Graphs
+                # Tab 0: All Graphs - Single Pie Chart with All Categories
                 with tabs_pie[0]:
-                    for idx, title in enumerate(pie_titles):
-                        try:
-                            # Get latest value for pie chart
-                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[idx]]
-                            # Create simple pie chart showing proportion
-                            labels = [title, "Others"]
-                            values_pie = [float(value) if pd.notna(value) else 0, 100 - (float(value) if pd.notna(value) else 0)]
+                    try:
+                        # Get values for all four categories
+                        labels = []
+                        values_pie = []
 
-                            fig_pie = go.Figure(data=[go.Pie(
-                                labels=labels,
-                                values=values_pie,
-                                hole=0.3
-                            )])
-                            fig_pie.update_layout(
-                                title=title,
-                                height=200,
-                                margin=dict(l=20, r=20, t=40, b=20),
-                                showlegend=True
+                        for idx, title in enumerate(pie_titles):
+                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[idx]]
+                            value_float = float(value) if pd.notna(value) else 0
+                            labels.append(title)
+                            values_pie.append(value_float)
+
+                        # Create pie chart with all four categories
+                        fig_pie = go.Figure(data=[go.Pie(
+                            labels=labels,
+                            values=values_pie,
+                            hole=0.3,
+                            textinfo='label+percent+value',
+                            textposition='auto'
+                        )])
+                        fig_pie.update_layout(
+                            title="Investment Portfolio Distribution",
+                            height=500,
+                            margin=dict(l=20, r=20, t=60, b=20),
+                            showlegend=True,
+                            legend=dict(
+                                orientation="v",
+                                yanchor="middle",
+                                y=0.5,
+                                xanchor="left",
+                                x=1.05
                             )
-                            st.plotly_chart(fig_pie, use_container_width=True, key=f"pie_all_{idx}")
-                        except:
-                            st.warning(f"Unable to load data for {title}")
+                        )
+                        st.plotly_chart(fig_pie, use_container_width=True, key="pie_all_combined")
+                    except Exception as e:
+                        st.warning(f"Unable to load pie chart data: {str(e)}")
 
                 # Tabs 1-4: Individual Pie Charts
                 for tab_idx in range(1, 5):
