@@ -131,7 +131,6 @@ if 'latest_col_ytd_idx' not in st.session_state:
 if 'latest_col_idx' not in st.session_state:
     st.session_state.latest_col_idx = None
 
-@st.cache_data
 def process_excel_data(uploaded_file):
     """Process Excel file and return cleaned dataframes"""
     try:
@@ -344,46 +343,6 @@ def null_value(value):
         return 0
     return value
 
-@st.cache_data
-def get_summary_display_data(_df_summary, prev_col_idx, latest_col_idx):
-    """Get cached summary display dataframe"""
-    if _df_summary is None or prev_col_idx < 0 or latest_col_idx >= len(_df_summary.columns):
-        return None
-
-    present_month_col = _df_summary.columns[latest_col_idx]
-    prev_month_col = _df_summary.columns[prev_col_idx]
-
-    if 'Jenis Risiko' in _df_summary.columns:
-        df_display = _df_summary[['Jenis Risiko', prev_month_col, present_month_col]].copy()
-        df_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
-    else:
-        df_display = _df_summary.iloc[:, [0, prev_col_idx, latest_col_idx]].copy()
-        df_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
-
-    return df_display
-
-@st.cache_data
-def get_financial_metric(_df_ytd, col_name, value_idx):
-    """Get cached financial metric value"""
-    if _df_ytd is None or col_name not in _df_ytd.columns:
-        return None
-    try:
-        return _df_ytd[col_name].iloc[value_idx]
-    except:
-        return None
-
-@st.cache_data
-def get_line_chart_data(_df_ytd, columns, value_idx):
-    """Get cached line chart data"""
-    if _df_ytd is None:
-        return None, None
-    try:
-        dates = list(columns)
-        values = [_df_ytd[col].iloc[value_idx] for col in columns]
-        return dates, values
-    except:
-        return None, None
-
 def show_dashboard():
     """Display the risk management dashboard"""
 
@@ -468,12 +427,23 @@ def show_dashboard():
             latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
             prev_col_idx = latest_col_idx - 3
 
-    # Calculate summary column indices based on selected date using cached function
+    # Calculate summary column indices based on selected date
     if st.session_state.df_summary is not None and latest_col_idx is not None:
         try:
-            # Use cached function to get summary display data
-            df_summary_display = get_summary_display_data(st.session_state.df_summary, prev_col_idx, latest_col_idx)
-            if df_summary_display is None:
+            # Ensure indices are valid
+            if prev_col_idx >= 0 and latest_col_idx < len(st.session_state.df_summary.columns):
+                present_month_col = st.session_state.df_summary.columns[latest_col_idx]
+                prev_month_col = st.session_state.df_summary.columns[prev_col_idx]
+
+                # Check if 'Jenis Risiko' column exists
+                if 'Jenis Risiko' in st.session_state.df_summary.columns:
+                    df_summary_display = st.session_state.df_summary[['Jenis Risiko', prev_month_col, present_month_col]].copy()
+                    df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
+                else:
+                    # Use first column as risk category
+                    df_summary_display = st.session_state.df_summary.iloc[:, [0, prev_col_idx, latest_col_idx]].copy()
+                    df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
+            else:
                 # Fallback to session state
                 df_summary_display = st.session_state.df_summary_present
         except Exception as e:
@@ -571,21 +541,18 @@ def show_dashboard():
             with st.container(border=True):
                 # Display title
                 st.markdown(f"<div style='text-align: center; color: #999; font-size: 12px;'>{titles[i]}</div>", unsafe_allow_html=True)
-                # Get value from df_ytd using cached function
+                # Get value from df_ytd
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
-                        value = get_financial_metric(st.session_state.df_ytd, latest_col_ytd_idx, value_idx[i])
-                        if value is not None:
-                            # Format value for display (except RBC which stays as percentage)
-                            if i == 6:  # RBC - display as percentage
-                                formatted_value = format_percentage(value)
-                                st.markdown(f"<div style='text-align: center; font-size: 32px; font-weight: bold; color: #ff6347; margin: 5px 0;'>{formatted_value}</div>", unsafe_allow_html=True)
-                                st.markdown("<div style='text-align: center; color: #666; font-size: 11px; margin-top: 5px;'>Minimal 120% dari OJK</div>", unsafe_allow_html=True)
-                            else:  # Format other values in mil/bil
-                                formatted_value = format_value(value)
-                                st.markdown(f"<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>{formatted_value}</div>", unsafe_allow_html=True)
-                        else:
-                            st.markdown("<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
+                        # Format value for display (except RBC which stays as percentage)
+                        if i == 6:  # RBC - display as percentage
+                            formatted_value = format_percentage(value)
+                            st.markdown(f"<div style='text-align: center; font-size: 32px; font-weight: bold; color: #ff6347; margin: 5px 0;'>{formatted_value}</div>", unsafe_allow_html=True)
+                            st.markdown("<div style='text-align: center; color: #666; font-size: 11px; margin-top: 5px;'>Minimal 120% dari OJK</div>", unsafe_allow_html=True)
+                        else:  # Format other values in mil/bil
+                            formatted_value = format_value(value)
+                            st.markdown(f"<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>{formatted_value}</div>", unsafe_allow_html=True)
                     except:
                         st.markdown("<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
                 else:
@@ -617,46 +584,42 @@ def show_dashboard():
                     # Graph 1: Jumlah Pendapatan (left column, row 1)
                     with col1_row1:
                         try:
-                            dates, values = get_line_chart_data(st.session_state.df_ytd, present_col_ytd, value_idx[0])
+                            dates = [col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[0]] for col in present_col_ytd]
 
-                            if dates is not None and values is not None:
-                                fig_line = go.Figure()
-                                fig_line.add_trace(go.Scatter(
-                                    x=dates, y=values, mode='lines+markers',
-                                    name=line_titles[0], line=dict(width=2), marker=dict(size=6)
-                                ))
-                                fig_line.update_layout(
-                                    title=line_titles[0], height=250,
-                                    margin=dict(l=40, r=20, t=40, b=30),
-                                    xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
-                                    plot_bgcolor='white'
-                                )
-                                st.plotly_chart(fig_line, use_container_width=True, key="line_all_0")
-                            else:
-                                st.warning(f"Unable to load data for {line_titles[0]}")
+                            fig_line = go.Figure()
+                            fig_line.add_trace(go.Scatter(
+                                x=dates, y=values, mode='lines+markers',
+                                name=line_titles[0], line=dict(width=2), marker=dict(size=6)
+                            ))
+                            fig_line.update_layout(
+                                title=line_titles[0], height=250,
+                                margin=dict(l=40, r=20, t=40, b=30),
+                                xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
+                                plot_bgcolor='white'
+                            )
+                            st.plotly_chart(fig_line, use_container_width=True, key="line_all_0")
                         except:
                             st.warning(f"Unable to load data for {line_titles[0]}")
 
                     # Graph 2: Premi Bruto (right column, row 1)
                     with col2_row1:
                         try:
-                            dates, values = get_line_chart_data(st.session_state.df_ytd, present_col_ytd, value_idx[1])
+                            dates = [col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[1]] for col in present_col_ytd]
 
-                            if dates is not None and values is not None:
-                                fig_line = go.Figure()
-                                fig_line.add_trace(go.Scatter(
-                                    x=dates, y=values, mode='lines+markers',
-                                    name=line_titles[1], line=dict(width=2), marker=dict(size=6)
-                                ))
-                                fig_line.update_layout(
-                                    title=line_titles[1], height=250,
-                                    margin=dict(l=40, r=20, t=40, b=30),
-                                    xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
-                                    plot_bgcolor='white'
-                                )
-                                st.plotly_chart(fig_line, use_container_width=True, key="line_all_1")
-                            else:
-                                st.warning(f"Unable to load data for {line_titles[1]}")
+                            fig_line = go.Figure()
+                            fig_line.add_trace(go.Scatter(
+                                x=dates, y=values, mode='lines+markers',
+                                name=line_titles[1], line=dict(width=2), marker=dict(size=6)
+                            ))
+                            fig_line.update_layout(
+                                title=line_titles[1], height=250,
+                                margin=dict(l=40, r=20, t=40, b=30),
+                                xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
+                                plot_bgcolor='white'
+                            )
+                            st.plotly_chart(fig_line, use_container_width=True, key="line_all_1")
                         except:
                             st.warning(f"Unable to load data for {line_titles[1]}")
 
@@ -666,46 +629,42 @@ def show_dashboard():
                     # Graph 3: Klaim Bruto (left column, row 2)
                     with col1_row2:
                         try:
-                            dates, values = get_line_chart_data(st.session_state.df_ytd, present_col_ytd, value_idx[2])
+                            dates = [col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[2]] for col in present_col_ytd]
 
-                            if dates is not None and values is not None:
-                                fig_line = go.Figure()
-                                fig_line.add_trace(go.Scatter(
-                                    x=dates, y=values, mode='lines+markers',
-                                    name=line_titles[2], line=dict(width=2), marker=dict(size=6)
-                                ))
-                                fig_line.update_layout(
-                                    title=line_titles[2], height=250,
-                                    margin=dict(l=40, r=20, t=40, b=30),
-                                    xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
-                                    plot_bgcolor='white'
-                                )
-                                st.plotly_chart(fig_line, use_container_width=True, key="line_all_2")
-                            else:
-                                st.warning(f"Unable to load data for {line_titles[2]}")
+                            fig_line = go.Figure()
+                            fig_line.add_trace(go.Scatter(
+                                x=dates, y=values, mode='lines+markers',
+                                name=line_titles[2], line=dict(width=2), marker=dict(size=6)
+                            ))
+                            fig_line.update_layout(
+                                title=line_titles[2], height=250,
+                                margin=dict(l=40, r=20, t=40, b=30),
+                                xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
+                                plot_bgcolor='white'
+                            )
+                            st.plotly_chart(fig_line, use_container_width=True, key="line_all_2")
                         except:
                             st.warning(f"Unable to load data for {line_titles[2]}")
 
                     # Graph 4: Laba Rugi Komprehensif (right column, row 2)
                     with col2_row2:
                         try:
-                            dates, values = get_line_chart_data(st.session_state.df_ytd, present_col_ytd, value_idx[3])
+                            dates = [col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[3]] for col in present_col_ytd]
 
-                            if dates is not None and values is not None:
-                                fig_line = go.Figure()
-                                fig_line.add_trace(go.Scatter(
-                                    x=dates, y=values, mode='lines+markers',
-                                    name=line_titles[3], line=dict(width=2), marker=dict(size=6)
-                                ))
-                                fig_line.update_layout(
-                                    title=line_titles[3], height=250,
-                                    margin=dict(l=40, r=20, t=40, b=30),
-                                    xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
-                                    plot_bgcolor='white'
-                                )
-                                st.plotly_chart(fig_line, use_container_width=True, key="line_all_3")
-                            else:
-                                st.warning(f"Unable to load data for {line_titles[3]}")
+                            fig_line = go.Figure()
+                            fig_line.add_trace(go.Scatter(
+                                x=dates, y=values, mode='lines+markers',
+                                name=line_titles[3], line=dict(width=2), marker=dict(size=6)
+                            ))
+                            fig_line.update_layout(
+                                title=line_titles[3], height=250,
+                                margin=dict(l=40, r=20, t=40, b=30),
+                                xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
+                                plot_bgcolor='white'
+                            )
+                            st.plotly_chart(fig_line, use_container_width=True, key="line_all_3")
                         except:
                             st.warning(f"Unable to load data for {line_titles[3]}")
 
@@ -715,29 +674,27 @@ def show_dashboard():
                     with tabs_line[tab_idx]:
                         try:
                             title = line_titles[tab_idx - 1]
-                            dates, values = get_line_chart_data(st.session_state.df_ytd, present_col_ytd, value_idx[tab_idx - 1])
+                            dates = [col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[tab_idx - 1]] for col in present_col_ytd]
 
-                            if dates is not None and values is not None:
-                                fig_line = go.Figure()
-                                fig_line.add_trace(go.Scatter(
-                                    x=dates,
-                                    y=values,
-                                    mode='lines+markers',
-                                    name=title,
-                                    line=dict(width=3),
-                                    marker=dict(size=8)
-                                ))
-                                fig_line.update_layout(
-                                    title=title,
-                                    height=450,
-                                    margin=dict(l=40, r=20, t=40, b=30),
-                                    xaxis=dict(showgrid=True),
-                                    yaxis=dict(showgrid=True),
-                                    plot_bgcolor='white'
-                                )
-                                st.plotly_chart(fig_line, use_container_width=True, key=f"line_single_{tab_idx}")
-                            else:
-                                st.warning(f"Unable to load data")
+                            fig_line = go.Figure()
+                            fig_line.add_trace(go.Scatter(
+                                x=dates,
+                                y=values,
+                                mode='lines+markers',
+                                name=title,
+                                line=dict(width=3),
+                                marker=dict(size=8)
+                            ))
+                            fig_line.update_layout(
+                                title=title,
+                                height=450,
+                                margin=dict(l=40, r=20, t=40, b=30),
+                                xaxis=dict(showgrid=True),
+                                yaxis=dict(showgrid=True),
+                                plot_bgcolor='white'
+                            )
+                            st.plotly_chart(fig_line, use_container_width=True, key=f"line_single_{tab_idx}")
                         except:
                             st.warning(f"Unable to load data")
             except:
@@ -766,8 +723,8 @@ def show_dashboard():
                         values_pie = []
 
                         for idx, title in enumerate(pie_titles):
-                            value = get_financial_metric(st.session_state.df_ytd, latest_col_ytd_idx, value_idx[idx])
-                            value_float = float(value) if value is not None and pd.notna(value) else 0
+                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[idx]]
+                            value_float = float(value) if pd.notna(value) else 0
                             labels.append(title)
                             values_pie.append(value_float)
 
@@ -801,8 +758,8 @@ def show_dashboard():
                     with tabs_pie[tab_idx]:
                         try:
                             title = pie_titles[tab_idx - 1]
-                            value = get_financial_metric(st.session_state.df_ytd, latest_col_ytd_idx, value_idx[tab_idx - 1])
-                            value_float = float(value) if value is not None and pd.notna(value) else 0
+                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[tab_idx - 1]]
+                            value_float = float(value) if pd.notna(value) else 0
 
                             # Create full pie chart showing 100% of this investment type
                             labels = [title]
@@ -843,8 +800,7 @@ def show_dashboard():
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
                         # Offset index by 7 since previous section used 0-6
-                        raw_value = get_financial_metric(st.session_state.df_ytd, latest_col_ytd_idx, value_idx[i])
-                        value = null_value(raw_value) if raw_value is not None else 0
+                        value = null_value(st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]])
                         st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
                     except:
                         st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>0</div>", unsafe_allow_html=True)
@@ -861,8 +817,7 @@ def show_dashboard():
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
                         # Offset index by 10 (7 from first section + 3 from col_a)
-                        raw_value = get_financial_metric(st.session_state.df_ytd, latest_col_ytd_idx, value_idx[i])
-                        value = null_value(raw_value) if raw_value is not None else 0
+                        value = null_value(st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]])
                         st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
                     except:
                         st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>0</div>", unsafe_allow_html=True)
@@ -879,8 +834,7 @@ def show_dashboard():
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
                         # Offset index by 12 (7 + 3 + 2)
-                        raw_value = get_financial_metric(st.session_state.df_ytd, latest_col_ytd_idx, value_idx[i])
-                        value = null_value(raw_value) if raw_value is not None else 0
+                        value = null_value(st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]])
                         st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
                     except:
                         st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>0</div>", unsafe_allow_html=True)
