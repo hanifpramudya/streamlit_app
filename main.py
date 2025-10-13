@@ -617,7 +617,7 @@ def main():
     
     # Sidebar navigation
     with st.sidebar:
-        st.image.sidebar("Logo.png")
+        st.image("Logo.png")
 
         st.title("Navigation")
         
