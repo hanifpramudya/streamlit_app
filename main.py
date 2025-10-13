@@ -354,9 +354,9 @@ def show_dashboard():
     date_col1, date_col2 = st.columns([1, 5])
     with date_col1:
         if latest_col_ytd_idx and st.session_state.df_ytd is not None:
-            # Get the index position of the latest_col_ytd_idx column
+            # Get columns up to latest_col_ytd_idx, excluding 'Parameter'
             col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
-            available_dates = list(st.session_state.df_ytd.columns[:col_position + 1])
+            available_dates = [col for col in st.session_state.df_ytd.columns[:col_position + 1] if col != 'Parameter']
             if available_dates:
                 selected_date = st.selectbox(
                     "Select Date",
@@ -568,7 +568,7 @@ def show_dashboard():
                         'axis': {'range': [0, 100], 'visible': False},
                         'bar': {'color': "white", 'thickness': 0},
                         'bgcolor': "white",
-                        'borderwidth': 2,
+                        'borderwidth': 2.5,
                         'bordercolor': '#20B2AA',
                         'steps': [
                             {'range': [0, int(value.strip('%'))], 'color': '#20B2AA'},
