@@ -341,34 +341,38 @@ def show_dashboard():
         latest_col_ytd_idx = None
 
     # Header
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.title("Risk Management Dashboard")
-        # Date selector
-        date_col1, date_col2 = st.columns([1, 5])
-        with date_col1:
-            if latest_col_ytd_idx and st.session_state.df_ytd is not None:
-                # Get columns up to latest_col_ytd_idx, excluding 'Parameter'
-                col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
-                available_dates = [col for col in st.session_state.df_ytd.columns[:col_position] if col != 'Parameter']
-                if available_dates:
-                    selected_date = st.selectbox(
-                        "Select Date",
-                        options=available_dates,
-                        index=len(available_dates) - 1
-                    )
-                else:
-                    st.warning("No dates available")
+    st.title("Risk Management Dashboard")
+
+    # Legend in horizontal layout
+    with st.container(border=True):
+        st.markdown("#### Legend")
+        st.markdown('''
+            <div style="display: flex; justify-content: space-around; align-items: center;">
+                <span><span style="color: #90d050; font-size: 20px;">●</span> Low</span>
+                <span><span style="color: #fff2cc; font-size: 20px;">●</span> Low to Moderate</span>
+                <span><span style="color: #ffff00; font-size: 20px;">●</span> Moderate</span>
+                <span><span style="color: #ffc001; font-size: 20px;">●</span> Moderate to High</span>
+                <span><span style="color: #ff0000; font-size: 20px;">●</span> High</span>
+            </div>
+        ''', unsafe_allow_html=True)
+
+    # Date selector
+    date_col1, date_col2 = st.columns([1, 5])
+    with date_col1:
+        if latest_col_ytd_idx and st.session_state.df_ytd is not None:
+            # Get columns up to latest_col_ytd_idx, excluding 'Parameter'
+            col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
+            available_dates = [col for col in st.session_state.df_ytd.columns[:col_position] if col != 'Parameter']
+            if available_dates:
+                selected_date = st.selectbox(
+                    "Select Date",
+                    options=available_dates,
+                    index=len(available_dates) - 1
+                )
             else:
                 st.warning("No dates available")
-    with col2:
-        with st.container(border=True):
-            st.markdown("#### Legend")
-            st.markdown('<span style="color: #90d050; font-size: 20px;">●</span> Low', unsafe_allow_html=True)
-            st.markdown('<span style="color: #fff2cc; font-size: 20px;">●</span> Low to Moderate', unsafe_allow_html=True)
-            st.markdown('<span style="color: #ffff00; font-size: 20px;">●</span> Moderate', unsafe_allow_html=True)
-            st.markdown('<span style="color: #ffc001; font-size: 20px;">●</span> Moderate to High', unsafe_allow_html=True)
-            st.markdown('<span style="color: #ff0000; font-size: 20px;">●</span> High', unsafe_allow_html=True)
+        else:
+            st.warning("No dates available")
 
     # Summary Section
     st.markdown("### Summary")
