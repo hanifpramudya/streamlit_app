@@ -418,7 +418,7 @@ def show_dashboard():
         except:
             composite_score = 0.0
         
-        st.markdown(f"<p style='text-align: center;'><strong>Average Risk</strong><br>NPS Score is {composite_score:.2f}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align: center;'><strong>Average Risk</strong><br>Composite Score is {composite_score:.2f}</p>", unsafe_allow_html=True)
         
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
