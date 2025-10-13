@@ -492,7 +492,7 @@ def show_dashboard():
                 present_col_ytd = st.session_state.df_ytd.columns[max(0, col_position - 11):col_position + 1]
 
                 # Tab 0: All Graphs
-                value_idx = [25, 16, 26, 43]
+                value_idx = [3, 16, 26, 43]
                 with tabs_line[0]:
                     for idx, title in enumerate(line_titles):
                         try:
@@ -560,7 +560,7 @@ def show_dashboard():
     with col_pies:
         # Pie chart titles
         pie_titles = ["Deposito Berjangka", "Obligasi Korporasi", "Surat Berharga yang Diterbitkan oleh Negara RI", "Reksa Dana"]
-
+        value_idx = [1,2,3,4]
         # Create tabs
         tabs_pie = st.tabs(["All Graphs", pie_titles[0], pie_titles[1], pie_titles[2], pie_titles[3]])
 
@@ -574,7 +574,7 @@ def show_dashboard():
                     for idx, title in enumerate(pie_titles):
                         try:
                             # Get latest value for pie chart
-                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[18 + idx]
+                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[idx]]
                             # Create simple pie chart showing proportion
                             labels = [title, "Others"]
                             values_pie = [float(value) if pd.notna(value) else 0, 100 - (float(value) if pd.notna(value) else 0)]
@@ -599,7 +599,7 @@ def show_dashboard():
                     with tabs_pie[tab_idx]:
                         try:
                             title = pie_titles[tab_idx - 1]
-                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[18 + (tab_idx - 1)]
+                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[idx]]
                             labels = [title, "Others"]
                             values_pie = [float(value) if pd.notna(value) else 0, 100 - (float(value) if pd.notna(value) else 0)]
 
