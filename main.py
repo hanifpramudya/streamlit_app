@@ -330,6 +330,13 @@ def format_value(value):
     except:
         return str(value)
 
+def format_percentage(value):
+    """Convert value to percentage format for RBC"""
+    try:
+        return f"{float(value):.2f}%"
+    except:
+        return f"{value}%"
+
 def show_dashboard():
     """Display the risk management dashboard"""
 
@@ -533,12 +540,8 @@ def show_dashboard():
                     try:
                         value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
                         # Format value for display (except RBC which stays as percentage)
-                        if value == "RBC":  # RBC - display as percentage
-                            # Convert to percentage format
-                            try:
-                                formatted_value = f"{float(value):.2f}%"
-                            except:
-                                formatted_value = f"{value}%"
+                        if i == 6:  # RBC - display as percentage
+                            formatted_value = format_percentage(value)
                             st.markdown(f"<div style='text-align: center; font-size: 32px; font-weight: bold; color: #ff6347; margin: 5px 0;'>{formatted_value}</div>", unsafe_allow_html=True)
                             st.markdown("<div style='text-align: center; color: #666; font-size: 11px; margin-top: 5px;'>Minimal 120% dari OJK</div>", unsafe_allow_html=True)
                         else:  # Format other values in mil/bil
