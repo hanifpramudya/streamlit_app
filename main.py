@@ -533,7 +533,7 @@ def show_dashboard():
                     try:
                         value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
                         # Format value for display (except RBC which stays as percentage)
-                        if i == 6:  # RBC - display as percentage
+                        if value == "RBC":  # RBC - display as percentage
                             # Convert to percentage format
                             try:
                                 formatted_value = f"{float(value):.2f}%"
