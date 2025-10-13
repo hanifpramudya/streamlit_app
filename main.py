@@ -452,7 +452,7 @@ def show_dashboard():
     # Create 7 columns: 6 equal-sized, 1 larger for RBC
     col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 1, 1, 1, 1, 1, 1.5])
     cols = [col1, col2, col3, col4, col5, col6, col7]
-    value_idx = [12,17,18,119,8,3,54]
+    value_idx = [9,14,15,116,5,0,51]
 
     # Display all 7 containers
     for i, col in enumerate(cols):
