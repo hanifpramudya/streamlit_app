@@ -389,7 +389,7 @@ def show_dashboard():
     if col_position is not None and st.session_state.df_summary is not None:
         # df_summary typically has 3 columns per date period (weighted, score, classification)
         # Adjust the multiplier based on your actual data structure
-        latest_col_idx = (col_position * 3) + 2  # +2 to get the classification column
+        latest_col_idx = col_position  # +2 to get the classification column
 
         # Ensure the index is within bounds
         if latest_col_idx >= len(st.session_state.df_summary.columns):
