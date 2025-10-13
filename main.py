@@ -387,28 +387,55 @@ def show_dashboard():
     # Calculate latest_col_idx based on col_position
     # Map col_position from df_ytd to df_summary (assuming 3 columns per date in summary)
     if col_position is not None and st.session_state.df_summary is not None:
-        # df_summary typically has 3 columns per date period (weighted, score, classification)
-        # Adjust the multiplier based on your actual data structure
-        latest_col_idx = col_position  # +2 to get the classification column
+        # Find the column index in df_summary where column name contains selected_date
+        matching_cols = np.where([selected_date in str(col) for col in st.session_state.df_summary.columns])[0]
+        if len(matching_cols) > 0:
+            latest_col_idx = int(matching_cols[-1])  # Get the last matching column
+            prev_col_idx = int(matching_cols[0]) if len(matching_cols) > 1 else latest_col_idx - 3
+        else:
+            # Fallback calculation
+            latest_col_idx = (col_position * 3) + 2
+            prev_col_idx = latest_col_idx - 3
 
         # Ensure the index is within bounds
         if latest_col_idx >= len(st.session_state.df_summary.columns):
             latest_col_idx = len(st.session_state.df_summary.columns) - 1
+            prev_col_idx = latest_col_idx - 3
     else:
         # Fallback: calculate from df_summary statically
         df_numpy = st.session_state.df_summary.to_numpy()
         row_0_numpy = df_numpy[0]
-        nan_indices = int(np.where(row_0_numpy == '-')[0][0])
-        latest_col_idx = nan_indices - 3
-        prev_col_idx = nan_indices - 6
+        nan_mask = row_0_numpy == '-'
+        if nan_mask.any():
+            nan_indices = int(np.where(nan_mask)[0][0])
+            latest_col_idx = nan_indices - 3
+            prev_col_idx = nan_indices - 6
+        else:
+            latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
+            prev_col_idx = latest_col_idx - 3
 
     # Calculate summary column indices based on selected date
     if st.session_state.df_summary is not None and latest_col_idx is not None:
-            present_month_col = st.session_state.df_summary.columns[latest_col_idx]
-            prev_month_col = st.session_state.df_summary.columns[prev_col_idx]
-            df_summary_display = st.session_state.df_summary[['Jenis Risiko', prev_month_col, present_month_col]].copy()
-            df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
-  
+        try:
+            # Ensure indices are valid
+            if prev_col_idx >= 0 and latest_col_idx < len(st.session_state.df_summary.columns):
+                present_month_col = st.session_state.df_summary.columns[latest_col_idx]
+                prev_month_col = st.session_state.df_summary.columns[prev_col_idx]
+
+                # Check if 'Jenis Risiko' column exists
+                if 'Jenis Risiko' in st.session_state.df_summary.columns:
+                    df_summary_display = st.session_state.df_summary[['Jenis Risiko', prev_month_col, present_month_col]].copy()
+                    df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
+                else:
+                    # Use first column as risk category
+                    df_summary_display = st.session_state.df_summary.iloc[:, [0, prev_col_idx, latest_col_idx]].copy()
+                    df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
+            else:
+                # Fallback to session state
+                df_summary_display = st.session_state.df_summary_present
+        except Exception as e:
+            # Fallback to session state
+            df_summary_display = st.session_state.df_summary_present
     else:
         # Fallback to session state
         df_summary_display = st.session_state.df_summary_present
