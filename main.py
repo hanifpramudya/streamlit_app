@@ -533,9 +533,14 @@ def show_dashboard():
                     try:
                         value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
                         # Format value for display (except RBC which stays as percentage)
-                        if i == 6:  # RBC - display as is (percentage)
-                            formatted_value = value
+                        if i == 6:  # RBC - display as percentage
+                            # Convert to percentage format
+                            try:
+                                formatted_value = f"{float(value):.2f}%"
+                            except:
+                                formatted_value = f"{value}%"
                             st.markdown(f"<div style='text-align: center; font-size: 32px; font-weight: bold; color: #ff6347; margin: 5px 0;'>{formatted_value}</div>", unsafe_allow_html=True)
+                            st.markdown("<div style='text-align: center; color: #666; font-size: 11px; margin-top: 5px;'>Minimal 120% dari OJK</div>", unsafe_allow_html=True)
                         else:  # Format other values in mil/bil
                             formatted_value = format_value(value)
                             st.markdown(f"<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>{formatted_value}</div>", unsafe_allow_html=True)
