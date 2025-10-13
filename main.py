@@ -359,7 +359,7 @@ def show_dashboard():
         if latest_col_ytd_idx and st.session_state.df_ytd is not None:
             # Get columns up to latest_col_ytd_idx, excluding 'Parameter'
             col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
-            available_dates = [col for col in st.session_state.df_ytd.columns[:col_position + 1] if col != 'Parameter']
+            available_dates = [col for col in st.session_state.df_ytd.columns[:col_position] if col != 'Parameter']
             if available_dates:
                 selected_date = st.selectbox(
                     "Select Date",
@@ -418,7 +418,7 @@ def show_dashboard():
         except:
             composite_score = 0.0
         
-        st.markdown(f"<p style='text-align: center;'><strong>Average Risk</strong><br>Composite Score is {composite_score:.2f}</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align: center;'><strong>Average Risk</strong><br>Composite Score in {available_dates} is {composite_score:.2f}</p>", unsafe_allow_html=True)
         
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
