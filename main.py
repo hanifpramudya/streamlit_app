@@ -403,28 +403,15 @@ def show_dashboard():
         if nan_mask.any():
             nan_indices = int(np.where(nan_mask)[0][0])
             latest_col_idx = nan_indices - 3
-            previous_col_idx = nan_indices - 6
-        else:
-            latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
-            previous_col_idx = latest_col_idx - 3
+            prev_col_idx = nan_indices - 6
 
     # Calculate summary column indices based on selected date
     if st.session_state.df_summary is not None and latest_col_idx is not None:
-        try:
-            # Ensure indices are valid
-            if previous_col_idx >= 0 and latest_col_idx >= 0:
-                latest_col = st.session_state.df_summary.columns[latest_col_idx]
-                previous_col = st.session_state.df_summary.columns[previous_col_idx]
-
-                # Create df_summary_display with the two month columns only
-                df_summary_display = st.session_state.df_summary[[previous_col, latest_col]].copy()
-                df_summary_display.columns = ['previous_month', 'present_month']
-            else:
-                # Fallback to session state
-                df_summary_display = st.session_state.df_summary_present
-        except:
-            # Fallback to session state
-            df_summary_display = st.session_state.df_summary_present
+            present_month_col = st.session_state.df_summary.columns[latest_col_idx]
+            prev_month_col = st.session_state.df_summary.columns[prev_col_idx]
+            df_summary_display = st.session_state.df_summary[['Jenis Risiko', prev_month_col, present_month_col]].copy()
+            df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
+  
     else:
         # Fallback to session state
         df_summary_display = st.session_state.df_summary_present
