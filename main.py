@@ -607,40 +607,31 @@ def show_dashboard():
                     except Exception as e:
                         st.warning(f"Unable to load pie chart data: {str(e)}")
 
-                # Tabs 1-4: Individual Pie Charts
+                # Tabs 1-4: Individual Pie Charts - Full portion of each investment type
                 for tab_idx in range(1, 5):
                     with tabs_pie[tab_idx]:
                         try:
-                            # Get values for all four categories
-                            labels = []
-                            values_pie = []
+                            title = pie_titles[tab_idx - 1]
+                            value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[tab_idx - 1]]
+                            value_float = float(value) if pd.notna(value) else 0
 
-                            for idx, title in enumerate(pie_titles):
-                                value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[idx]]
-                                value_float = float(value) if pd.notna(value) else 0
-                                labels.append(title)
-                                values_pie.append(value_float)
+                            # Create full pie chart showing 100% of this investment type
+                            labels = [title]
+                            values_pie = [100]  # Full 100% pie
 
-                            # Create full pie chart with all categories
                             fig_pie = go.Figure(data=[go.Pie(
                                 labels=labels,
                                 values=values_pie,
                                 hole=0.3,
-                                textinfo='label+percent',
-                                textposition='auto'
+                                textinfo='label+value',
+                                textposition='inside',
+                                text=[f"{value_float}"]
                             )])
                             fig_pie.update_layout(
-                                title=pie_titles[tab_idx - 1],
+                                title=f"{title}: {value_float}",
                                 height=450,
-                                margin=dict(l=20, r=20, t=40, b=80),
-                                showlegend=True,
-                                legend=dict(
-                                    orientation="h",
-                                    yanchor="bottom",
-                                    y=-0.3,
-                                    xanchor="center",
-                                    x=0.5
-                                )
+                                margin=dict(l=20, r=20, t=40, b=20),
+                                showlegend=False
                             )
                             st.plotly_chart(fig_pie, use_container_width=True, key=f"pie_single_{tab_idx}")
                         except Exception as e:
