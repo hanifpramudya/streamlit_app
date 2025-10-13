@@ -341,12 +341,12 @@ def show_dashboard():
         latest_col_ytd_idx = None
 
     # Header
-    col1, col2 = st.columns([5, 1])
+    col1, col2 = st.columns([3, 1])
     with col1:
         st.title("Risk Management Dashboard")
     with col2:
         try:
-            st.image("Logo.png")
+            st.image("Logo.png", width = 250)
         except:
             st.write("🏢")
     
@@ -440,21 +440,13 @@ def show_dashboard():
         st.plotly_chart(fig, use_container_width=True, key="nps_gauge")
     
     with col_legend:
-        st.markdown("#### &nbsp;")
-        st.markdown("")
-        st.markdown("")
-        st.markdown("")
-        st.markdown('<div style="padding: 10px;">', unsafe_allow_html=True)
-        st.markdown('<span style="color: #90d050; font-size: 20px;">●</span> Low', unsafe_allow_html=True)
-        st.markdown("")
-        st.markdown('<span style="color: #fff2cc; font-size: 20px;">●</span> Low to Moderate', unsafe_allow_html=True)
-        st.markdown("")
-        st.markdown('<span style="color: #ffff00; font-size: 20px;">●</span> Moderate', unsafe_allow_html=True)
-        st.markdown("")
-        st.markdown('<span style="color: #ffc001; font-size: 20px;">●</span> Moderate to High', unsafe_allow_html=True)
-        st.markdown("")
-        st.markdown('<span style="color: #ff0000; font-size: 20px;">●</span> High', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container(border=True):
+            st.markdown("#### Legend")
+            st.markdown('<span style="color: #90d050; font-size: 20px;">●</span> Low', unsafe_allow_html=True)
+            st.markdown('<span style="color: #fff2cc; font-size: 20px;">●</span> Low to Moderate', unsafe_allow_html=True)
+            st.markdown('<span style="color: #ffff00; font-size: 20px;">●</span> Moderate', unsafe_allow_html=True)
+            st.markdown('<span style="color: #ffc001; font-size: 20px;">●</span> Moderate to High', unsafe_allow_html=True)
+            st.markdown('<span style="color: #ff0000; font-size: 20px;">●</span> High', unsafe_allow_html=True)
     
     # Dropdown for risk type
     risk_types = ["Keseluruhan Risiko"]
