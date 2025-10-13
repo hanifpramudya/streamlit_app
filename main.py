@@ -344,6 +344,23 @@ def show_dashboard():
     col1, col2 = st.columns([3, 1])
     with col1:
         st.title("Risk Management Dashboard")
+        # Date selector
+        date_col1, date_col2 = st.columns([1, 5])
+        with date_col1:
+            if latest_col_ytd_idx and st.session_state.df_ytd is not None:
+                # Get columns up to latest_col_ytd_idx, excluding 'Parameter'
+                col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
+                available_dates = [col for col in st.session_state.df_ytd.columns[:col_position] if col != 'Parameter']
+                if available_dates:
+                    selected_date = st.selectbox(
+                        "Select Date",
+                        options=available_dates,
+                        index=len(available_dates) - 1
+                    )
+                else:
+                    st.warning("No dates available")
+            else:
+                st.warning("No dates available")
     with col2:
         with st.container(border=True):
             st.markdown("#### Legend")
@@ -352,24 +369,6 @@ def show_dashboard():
             st.markdown('<span style="color: #ffff00; font-size: 20px;">●</span> Moderate', unsafe_allow_html=True)
             st.markdown('<span style="color: #ffc001; font-size: 20px;">●</span> Moderate to High', unsafe_allow_html=True)
             st.markdown('<span style="color: #ff0000; font-size: 20px;">●</span> High', unsafe_allow_html=True)
-    
-    # Date selector
-    date_col1, date_col2 = st.columns([1, 5])
-    with date_col1:
-        if latest_col_ytd_idx and st.session_state.df_ytd is not None:
-            # Get columns up to latest_col_ytd_idx, excluding 'Parameter'
-            col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
-            available_dates = [col for col in st.session_state.df_ytd.columns[:col_position] if col != 'Parameter']
-            if available_dates:
-                selected_date = st.selectbox(
-                    "Select Date",
-                    options=available_dates,
-                    index=len(available_dates) - 1
-                )
-            else:
-                st.warning("No dates available")
-        else:
-            st.warning("No dates available")
 
     # Summary Section
     st.markdown("### Summary")
