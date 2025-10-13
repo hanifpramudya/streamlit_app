@@ -333,6 +333,12 @@ def show_dashboard():
         latest_col_idx = nan_indices - 3
     else:
         latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
+    
+    # Get latest_col_ytd_idx from session state or calculate
+    if st.session_state.latest_col_ytd_idx:
+        latest_col_ytd_idx = st.session_state.latest_col_ytd_idx
+    else:
+        latest_col_ytd_idx = None
 
     # Header
     col1, col2 = st.columns([5, 1])
@@ -347,13 +353,18 @@ def show_dashboard():
     # Date selector
     date_col1, date_col2 = st.columns([1, 5])
     with date_col1:
-        available_dates = list(st.session_state.df_ytd.columns[:st.session_state.latest_col_ytd_idx]) if st.session_state.latest_col_ytd_idx else []
-        if available_dates:
-            selected_date = st.selectbox(
-                "Select Date",
-                options=available_dates,
-                index=min(st.session_state.latest_col_ytd_idx - 1, len(available_dates) - 1)
-            )
+        if latest_col_ytd_idx and st.session_state.df_ytd is not None:
+            # Get the index position of the latest_col_ytd_idx column
+            col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
+            available_dates = list(st.session_state.df_ytd.columns[:col_position + 1])
+            if available_dates:
+                selected_date = st.selectbox(
+                    "Select Date",
+                    options=available_dates,
+                    index=len(available_dates) - 1
+                )
+            else:
+                st.warning("No dates available")
         else:
             st.warning("No dates available")
 
