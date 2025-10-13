@@ -374,9 +374,6 @@ def show_dashboard():
         else:
             st.warning("No dates available")
 
-    # Summary Section
-    st.markdown("### Summary")
-    
     col_summary, col_nps= st.columns([3, 2])
     
     with col_summary:
