@@ -422,6 +422,7 @@ def show_dashboard():
         
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
+            value=composite_score,
             domain={'x': [0, 1], 'y': [0, 1]},
             number={'font': {'size': 32}},
             gauge={
