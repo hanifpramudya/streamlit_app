@@ -622,6 +622,7 @@ def show_dashboard():
 
     # Additional Metrics Section - 3 columns with multiple rows
     col_a, col_b, col_c = st.columns(3)
+    value_idx = [139,141,143]
 
     # First column - 3 rows
     with col_a:
@@ -632,7 +633,7 @@ def show_dashboard():
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
                         # Offset index by 7 since previous section used 0-6
-                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[7 + i]
+                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
                         st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
                     except:
                         st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
@@ -641,14 +642,15 @@ def show_dashboard():
 
     # Second column - 2 rows
     with col_b:
-        titles_col_b = ["Jumlah Gugatan", "Jumlah Nominal Gugatan Yang Sedang Diajukan"]
+        titles_col_b = ["Jumlah Fraud","Jumlah Gugatan", "Jumlah Nominal Gugatan Yang Sedang Diajukan"]
+        value_idx = [117,132,133]
         for i, title in enumerate(titles_col_b):
             with st.container(border=True):
                 st.markdown(f"<div style='text-align: center; color: #999; font-size: 12px;'>{title}</div>", unsafe_allow_html=True)
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
                         # Offset index by 10 (7 from first section + 3 from col_a)
-                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[10 + i]
+                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
                         st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
                     except:
                         st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
@@ -658,13 +660,14 @@ def show_dashboard():
     # Third column - 2 rows
     with col_c:
         titles_col_c = ["Jumlah Pelanggaran Atas Ketentuan", "Jumlah Denda"]
+        value_idx = [134,137]
         for i, title in enumerate(titles_col_c):
             with st.container(border=True):
                 st.markdown(f"<div style='text-align: center; color: #999; font-size: 12px;'>{title}</div>", unsafe_allow_html=True)
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
                         # Offset index by 12 (7 + 3 + 2)
-                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[12 + i]
+                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
                         st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
                     except:
                         st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
