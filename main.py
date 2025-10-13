@@ -452,6 +452,7 @@ def show_dashboard():
     # Create 7 columns: 6 equal-sized, 1 larger for RBC
     col1, col2, col3, col4, col5, col6, col7 = st.columns([1, 1, 1, 1, 1, 1, 1.5])
     cols = [col1, col2, col3, col4, col5, col6, col7]
+    value_idx = [12,17,18,119,8,3,54]
 
     # Display all 7 containers
     for i, col in enumerate(cols):
@@ -462,7 +463,7 @@ def show_dashboard():
                 # Get value from df_ytd
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
-                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[i]
+                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
                         # RBC gets larger and red font
                         if i == 6:
                             st.markdown(f"<div style='text-align: center; font-size: 32px; font-weight: bold; color: #ff6347; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
