@@ -422,7 +422,7 @@ def show_dashboard():
             domain={'x': [0, 1], 'y': [0, 1]},
             number={'font': {'size': 20}},
             gauge={
-                'axis': {'range': [None, 5], 'tickwidth': 1},
+                'axis': {'range': [None, 5], 'tickwidth': 2.5},
                 'bar': {'color': "black"},
                 'bgcolor': "white",
                 'borderwidth': 2.5,
