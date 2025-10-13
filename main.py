@@ -300,7 +300,7 @@ def show_dashboard():
     with col1:
         st.title("Risk Management Dashboard")
     with col2:
-        st.image("Logo.png", width=120)
+        st.sidebar.image("Logo.png")
     
     # Date selector
     date_col1, date_col2 = st.columns([1, 5])
