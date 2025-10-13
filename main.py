@@ -300,6 +300,14 @@ def show_data_upload():
         st.write("**Note:** The file should contain sheets named 'Data_YTD' and 'Summary'")
 
 def show_dashboard():
+    #initiate variables
+    ## summary
+    df_numpy = st.session_state.df_summary.to_numpy()
+    row_0_numpy = df_numpy[0]
+    nan_indices = int(np.where(row_0_numpy == '-')[0][0])
+    latest_col_idx = nan_indices - 3
+
+
     """Display the risk management dashboard"""
     # Header
     col1, col2 = st.columns([5, 1])
@@ -313,7 +321,7 @@ def show_dashboard():
     with date_col1:
         selected_date = selected_date = st.selectbox(
     f"Select Date",  # Label for the selectbox
-    options=st.session_state.df_summary.columns[:st.session_state.latest_col_idx],
+    options=st.session_state.df_summary.columns[:latest_col_idx],
     index=st.session_state.latest_col_idx - 1)  # Default to the latest column
 
     # Summary Section
