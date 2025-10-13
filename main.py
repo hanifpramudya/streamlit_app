@@ -315,9 +315,22 @@ def show_data_upload():
         st.info("👆 Please upload an Excel file to get started")
         st.write("**Note:** The file should contain sheets named 'Data_YTD' and 'Summary'")
 
+def format_value(value):
+    """Format value to show in million or billion"""
+    try:
+        val = float(value)
+        if val >= 1_000_000_000:  # Billion
+            return f"{val / 1_000_000_000:.1f} bil"
+        elif val >= 1_000_000:  # Million
+            return f"{val / 1_000_000:.1f} mil"
+        else:
+            return f"{val:,.0f}"
+    except:
+        return str(value)
+
 def show_dashboard():
     """Display the risk management dashboard"""
-    
+
     # Check if data is loaded
     if st.session_state.df_summary is None or st.session_state.df_summary_present is None:
         st.error("No data loaded. Please upload data first.")
@@ -464,11 +477,13 @@ def show_dashboard():
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
                         value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
-                        # RBC gets larger and red font
-                        if i == 6:
-                            st.markdown(f"<div style='text-align: center; font-size: 32px; font-weight: bold; color: #ff6347; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
-                        else:
-                            st.markdown(f"<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
+                        # Format value for display (except RBC which stays as percentage)
+                        if i == 6:  # RBC - display as is (percentage)
+                            formatted_value = value
+                            st.markdown(f"<div style='text-align: center; font-size: 32px; font-weight: bold; color: #ff6347; margin: 5px 0;'>{formatted_value}</div>", unsafe_allow_html=True)
+                        else:  # Format other values in mil/bil
+                            formatted_value = format_value(value)
+                            st.markdown(f"<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>{formatted_value}</div>", unsafe_allow_html=True)
                     except:
                         st.markdown("<div style='text-align: center; font-size: 24px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
                 else:
