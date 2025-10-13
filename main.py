@@ -337,6 +337,12 @@ def format_percentage(value):
     except:
         return f"{value*100}%"
 
+def null_value(value):
+    """Return 0 if value is NaN or '-', otherwise return the value"""
+    if pd.isna(value) or value == "-" or value == "":
+        return 0
+    return value
+
 def show_dashboard():
     """Display the risk management dashboard"""
 
@@ -794,12 +800,12 @@ def show_dashboard():
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
                         # Offset index by 7 since previous section used 0-6
-                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
+                        value = null_value(st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]])
                         st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
                     except:
-                        st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                        st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>0</div>", unsafe_allow_html=True)
                 else:
-                    st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                    st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>0</div>", unsafe_allow_html=True)
 
     # Second column - 2 rows
     with col_b:
@@ -811,12 +817,12 @@ def show_dashboard():
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
                         # Offset index by 10 (7 from first section + 3 from col_a)
-                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
+                        value = null_value(st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]])
                         st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
                     except:
-                        st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                        st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>0</div>", unsafe_allow_html=True)
                 else:
-                    st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                    st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>0</div>", unsafe_allow_html=True)
 
     # Third column - 2 rows
     with col_c:
@@ -828,12 +834,12 @@ def show_dashboard():
                 if st.session_state.df_ytd is not None and latest_col_ytd_idx:
                     try:
                         # Offset index by 12 (7 + 3 + 2)
-                        value = st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]]
+                        value = null_value(st.session_state.df_ytd[latest_col_ytd_idx].iloc[value_idx[i]])
                         st.markdown(f"<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>{value}</div>", unsafe_allow_html=True)
                     except:
-                        st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                        st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>0</div>", unsafe_allow_html=True)
                 else:
-                    st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>-</div>", unsafe_allow_html=True)
+                    st.markdown("<div style='text-align: center; font-size: 20px; font-weight: bold; color: #333; margin: 5px 0;'>0</div>", unsafe_allow_html=True)
                     
 def main():
     """Main function to control navigation"""
