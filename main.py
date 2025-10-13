@@ -406,11 +406,11 @@ def show_dashboard():
                 'bgcolor': "white",
                 'borderwidth': 2,
                 'steps': [
-                    {'range': [0, 20], 'color': '#90EE90'},
-                    {'range': [20, 40], 'color': '#98D98E'},
-                    {'range': [40, 60], 'color': '#FFD700'},
-                    {'range': [60, 80], 'color': '#FFA500'},
-                    {'range': [80, 100], 'color': '#DC143C'}
+                    {'range': [0, 20], 'color': '#90d050'},
+                    {'range': [20, 40], 'color': '#fff2cc'},
+                    {'range': [40, 60], 'color': '#ffff00'},
+                    {'range': [60, 80], 'color': '#ffc001'},
+                    {'range': [80, 100], 'color': '#ff0000'}
                 ],
             }
         ))
@@ -420,11 +420,11 @@ def show_dashboard():
     with col_legend:
         st.markdown("")
         st.markdown("")
-        st.markdown("🟢 Low")
-        st.markdown("🟢 Low to Moderate")
-        st.markdown("🟡 Moderate")
-        st.markdown("🟠 Moderate to High")
-        st.markdown("🔴 High")
+        st.markdown('<span style="color: #90d050;">●</span> Low', unsafe_allow_html=True)
+        st.markdown('<span style="color: #fff2cc;">●</span> Low to Moderate', unsafe_allow_html=True)
+        st.markdown('<span style="color: #ffff00;">●</span> Moderate', unsafe_allow_html=True)
+        st.markdown('<span style="color: #ffc001;">●</span> Moderate to High', unsafe_allow_html=True)
+        st.markdown('<span style="color: #ff0000;">●</span> High', unsafe_allow_html=True)
     
     # Dropdown for risk type
     risk_types = ["Keseluruhan Risiko"]
