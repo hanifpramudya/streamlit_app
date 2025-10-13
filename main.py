@@ -320,9 +320,9 @@ def format_value(value):
     try:
         val = float(value)
         if val >= 1_000_000_000:  # Billion
-            return f"{val / 1_000_000_000:.1f} bil"
+            return f"{val / 1_000_000_000:.1f} miliar"
         elif val >= 1_000_000:  # Million
-            return f"{val / 1_000_000:.1f} mil"
+            return f"{val / 1_000_000:.1f} jt"
         elif val >= 1_000:  # Thousand
             return f"{val / 1_000:.1f} rb"
         else:
@@ -402,7 +402,7 @@ def show_dashboard():
 
         if nan_mask.any():
             nan_indices = int(np.where(nan_mask)[0][0])
-            latest_col_idx = nan_indices - 3
+            latest_col_idx = nan_indices
         else:
             latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
 
@@ -410,8 +410,8 @@ def show_dashboard():
     if st.session_state.df_summary is not None and latest_col_idx is not None:
         try:
             # Get present month and previous month column indices
-            present_month_col_idx = latest_col_idx
-            prev_month_col_idx = latest_col_idx - 3
+            present_month_col_idx = latest_col_idx - 3
+            prev_month_col_idx = latest_col_idx - 6
 
             # Ensure indices are valid
             if prev_month_col_idx >= 0 and present_month_col_idx < len(st.session_state.df_summary.columns):
