@@ -587,7 +587,7 @@ def show_dashboard():
                             labels=labels,
                             values=values_pie,
                             hole=0.3,
-                            textinfo='label+percent+value',
+                            textinfo='label+percent',
                             textposition='auto'
                         )])
                         fig_pie.update_layout(
