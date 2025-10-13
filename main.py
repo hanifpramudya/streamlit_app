@@ -337,23 +337,6 @@ def show_dashboard():
     if st.session_state.df_summary is None or st.session_state.df_summary_present is None:
         st.error("No data loaded. Please upload data first.")
         return
-    
-    # Initialize variables
-    df_numpy = st.session_state.df_summary.to_numpy()
-    row_0_numpy = df_numpy[0]
-    nan_mask = row_0_numpy == '-'
-    
-    if nan_mask.any():
-        nan_indices = int(np.where(nan_mask)[0][0])
-        latest_col_idx = nan_indices - 3
-    else:
-        latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
-    
-    # Get latest_col_ytd_idx from session state or calculate
-    if st.session_state.latest_col_ytd_idx:
-        latest_col_ytd_idx = st.session_state.latest_col_ytd_idx
-    else:
-        latest_col_ytd_idx = None
 
     # Header
     st.title("Risk Management Dashboard")
@@ -373,11 +356,12 @@ def show_dashboard():
 
     # Date selector
     date_col1, date_col2 = st.columns([1, 5])
+    selected_date = None
     with date_col1:
-        if latest_col_ytd_idx and st.session_state.df_ytd is not None:
+        if st.session_state.latest_col_ytd_idx and st.session_state.df_ytd is not None:
             # Get columns up to latest_col_ytd_idx, excluding 'Parameter'
-            col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
-            available_dates = [col for col in st.session_state.df_ytd.columns[:col_position+1] if col != 'Parameter']
+            temp_col_position = st.session_state.df_ytd.columns.get_loc(st.session_state.latest_col_ytd_idx)
+            available_dates = [col for col in st.session_state.df_ytd.columns[:temp_col_position+1] if col != 'Parameter']
             if available_dates:
                 selected_date = st.selectbox(
                     "Select Date",
@@ -388,6 +372,28 @@ def show_dashboard():
                 st.warning("No dates available")
         else:
             st.warning("No dates available")
+
+    # Initialize variables based on selected date
+    df_numpy = st.session_state.df_summary.to_numpy()
+    row_0_numpy = df_numpy[0]
+    nan_mask = row_0_numpy == '-'
+
+    if nan_mask.any():
+        nan_indices = int(np.where(nan_mask)[0][0])
+        latest_col_idx = nan_indices - 3
+    else:
+        latest_col_idx = st.session_state.latest_col_idx if st.session_state.latest_col_idx else len(st.session_state.df_summary.columns) - 1
+
+    # Get latest_col_ytd_idx from selected_date or session state
+    if selected_date and st.session_state.df_ytd is not None:
+        latest_col_ytd_idx = selected_date
+        col_position = st.session_state.df_ytd.columns.get_loc(selected_date)
+    elif st.session_state.latest_col_ytd_idx:
+        latest_col_ytd_idx = st.session_state.latest_col_ytd_idx
+        col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
+    else:
+        latest_col_ytd_idx = None
+        col_position = None
 
     col_summary, col_nps= st.columns([3, 2])
     
@@ -429,8 +435,10 @@ def show_dashboard():
             composite_score = float(st.session_state.df_summary_present['present_month'].iloc[10])
         except:
             composite_score = 0.0
-        
-        st.markdown(f"<p style='text-align: center;'><strong>Average Risk</strong><br>Composite Score in {available_dates[-1]} is {composite_score:.2f}</p>", unsafe_allow_html=True)
+
+        # Display selected date or latest date
+        display_date = selected_date if selected_date else (st.session_state.latest_col_ytd_idx if st.session_state.latest_col_ytd_idx else "N/A")
+        st.markdown(f"<p style='text-align: center;'><strong>Average Risk</strong><br>Composite Score in {display_date} is {composite_score:.2f}</p>", unsafe_allow_html=True)
         
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
