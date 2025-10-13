@@ -526,16 +526,8 @@ def show_dashboard():
         risk_types.extend(st.session_state.df_summary['Jenis Risiko'][:9].tolist())
     
     st.selectbox("Select Risk Type", risk_types, label_visibility="collapsed")
-
-    # Financial Metrics Section - Wrapped in blue container
-    st.markdown('''
-        <div style="background-color: rgba(0, 79, 182, 0.3);
-                    border: 2px solid #004FB6;
-                    border-radius: 10px;
-                    padding: 15px;
-                    margin-bottom: 15px;">
-    ''', unsafe_allow_html=True)
-
+    
+    # Financial Metrics Section
     titles = ["Jumlah Aset", "Jumlah Utang", "Jumlah Ekuitas", "Jumlah Polis", "Kas dan Bank", "Aset Investasi", "RBC"]
 
     # Create 7 columns: 6 equal-sized, 1 larger for RBC
