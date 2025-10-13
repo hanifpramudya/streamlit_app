@@ -395,27 +395,25 @@ def show_dashboard():
         latest_col_ytd_idx = None
         col_position = None
 
-    # Create dynamic df_summary_present based on selected date
-    df_summary_display = None
-    if st.session_state.df_summary is not None and col_position is not None:
-        # Map col_position from df_ytd to corresponding columns in df_summary
-        # df_summary has 3 columns per date (weighted, score, classification)
-        # So we calculate the corresponding summary column index
-        summary_col_idx = (col_position * 3) + 2  # Adjust based on your data structure
-        summary_prev_col_idx = summary_col_idx - 3
-
+    # Calculate summary column indices based on selected date
+    if st.session_state.df_summary is not None and latest_col_idx is not None:
         try:
-            if summary_prev_col_idx >= 2 and summary_col_idx < len(st.session_state.df_summary.columns):
-                latest_col = st.session_state.df_summary.columns[summary_col_idx]
-                previous_col = st.session_state.df_summary.columns[summary_prev_col_idx]
+            # Get present month and previous month column indices
+            present_month_col_idx = latest_col_idx
+            prev_month_col_idx = latest_col_idx - 3
 
-                # Check if 'Jenis Risiko' column exists
+            # Ensure indices are valid
+            if prev_month_col_idx >= 0 and present_month_col_idx < len(st.session_state.df_summary.columns):
+                present_month_col = st.session_state.df_summary.columns[present_month_col_idx]
+                prev_month_col = st.session_state.df_summary.columns[prev_month_col_idx]
+
+                # Create display dataframe
                 if 'Jenis Risiko' in st.session_state.df_summary.columns:
-                    df_summary_display = st.session_state.df_summary[['Jenis Risiko', previous_col, latest_col]].copy()
+                    df_summary_display = st.session_state.df_summary[['Jenis Risiko', prev_month_col, present_month_col]].copy()
                     df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
                 else:
                     # Use first column as risk category
-                    df_summary_display = st.session_state.df_summary.iloc[:, [0, summary_prev_col_idx, summary_col_idx]].copy()
+                    df_summary_display = st.session_state.df_summary.iloc[:, [0, prev_month_col_idx, present_month_col_idx]].copy()
                     df_summary_display.columns = ['Kategori Risiko', 'previous_month', 'present_month']
             else:
                 # Fallback to session state
