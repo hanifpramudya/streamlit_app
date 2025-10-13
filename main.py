@@ -491,36 +491,98 @@ def show_dashboard():
                 col_position = st.session_state.df_ytd.columns.get_loc(latest_col_ytd_idx)
                 present_col_ytd = st.session_state.df_ytd.columns[max(0, col_position - 11):col_position + 1]
 
-                # Tab 0: All Graphs
+                # Tab 0: All Graphs - 2x2 Grid Layout
                 value_idx = [3, 16, 26, 43]
                 with tabs_line[0]:
-                    for idx, title in enumerate(line_titles):
-                        try:
-                            # Get data for this metric across present_col_ytd
-                            dates = [col for col in present_col_ytd]
-                            values = [st.session_state.df_ytd[col].iloc[value_idx[idx]] for col in present_col_ytd]
+                    # First row - 2 columns
+                    col1_row1, col2_row1 = st.columns(2)
 
-                            # Create line chart
+                    # Graph 1: Jumlah Pendapatan (left column, row 1)
+                    with col1_row1:
+                        try:
+                            dates = [col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[0]] for col in present_col_ytd]
+
                             fig_line = go.Figure()
                             fig_line.add_trace(go.Scatter(
-                                x=dates,
-                                y=values,
-                                mode='lines+markers',
-                                name=title,
-                                line=dict(width=2),
-                                marker=dict(size=6)
+                                x=dates, y=values, mode='lines+markers',
+                                name=line_titles[0], line=dict(width=2), marker=dict(size=6)
                             ))
                             fig_line.update_layout(
-                                title=title,
-                                height=200,
+                                title=line_titles[0], height=250,
                                 margin=dict(l=40, r=20, t=40, b=30),
-                                xaxis=dict(showgrid=True),
-                                yaxis=dict(showgrid=True),
+                                xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
                                 plot_bgcolor='white'
                             )
-                            st.plotly_chart(fig_line, use_container_width=True, key=f"line_all_{idx}")
+                            st.plotly_chart(fig_line, use_container_width=True, key="line_all_0")
                         except:
-                            st.warning(f"Unable to load data for {title}")
+                            st.warning(f"Unable to load data for {line_titles[0]}")
+
+                    # Graph 2: Premi Bruto (right column, row 1)
+                    with col2_row1:
+                        try:
+                            dates = [col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[1]] for col in present_col_ytd]
+
+                            fig_line = go.Figure()
+                            fig_line.add_trace(go.Scatter(
+                                x=dates, y=values, mode='lines+markers',
+                                name=line_titles[1], line=dict(width=2), marker=dict(size=6)
+                            ))
+                            fig_line.update_layout(
+                                title=line_titles[1], height=250,
+                                margin=dict(l=40, r=20, t=40, b=30),
+                                xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
+                                plot_bgcolor='white'
+                            )
+                            st.plotly_chart(fig_line, use_container_width=True, key="line_all_1")
+                        except:
+                            st.warning(f"Unable to load data for {line_titles[1]}")
+
+                    # Second row - 2 columns
+                    col1_row2, col2_row2 = st.columns(2)
+
+                    # Graph 3: Klaim Bruto (left column, row 2)
+                    with col1_row2:
+                        try:
+                            dates = [col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[2]] for col in present_col_ytd]
+
+                            fig_line = go.Figure()
+                            fig_line.add_trace(go.Scatter(
+                                x=dates, y=values, mode='lines+markers',
+                                name=line_titles[2], line=dict(width=2), marker=dict(size=6)
+                            ))
+                            fig_line.update_layout(
+                                title=line_titles[2], height=250,
+                                margin=dict(l=40, r=20, t=40, b=30),
+                                xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
+                                plot_bgcolor='white'
+                            )
+                            st.plotly_chart(fig_line, use_container_width=True, key="line_all_2")
+                        except:
+                            st.warning(f"Unable to load data for {line_titles[2]}")
+
+                    # Graph 4: Laba Rugi Komprehensif (right column, row 2)
+                    with col2_row2:
+                        try:
+                            dates = [col for col in present_col_ytd]
+                            values = [st.session_state.df_ytd[col].iloc[value_idx[3]] for col in present_col_ytd]
+
+                            fig_line = go.Figure()
+                            fig_line.add_trace(go.Scatter(
+                                x=dates, y=values, mode='lines+markers',
+                                name=line_titles[3], line=dict(width=2), marker=dict(size=6)
+                            ))
+                            fig_line.update_layout(
+                                title=line_titles[3], height=250,
+                                margin=dict(l=40, r=20, t=40, b=30),
+                                xaxis=dict(showgrid=True), yaxis=dict(showgrid=True),
+                                plot_bgcolor='white'
+                            )
+                            st.plotly_chart(fig_line, use_container_width=True, key="line_all_3")
+                        except:
+                            st.warning(f"Unable to load data for {line_titles[3]}")
 
                 # Tabs 1-4: Individual Graphs
                 value_idx = [25, 16, 26, 43]
