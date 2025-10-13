@@ -126,6 +126,8 @@ if 'df_summary_present' not in st.session_state:
     st.session_state.df_summary_present = None
 if 'uploaded_file' not in st.session_state:
     st.session_state.uploaded_file = None
+if 'latest_col_ytd_idx' not in st.session_state:
+    st.session_state.latest_col_ytd_idx = None
 if 'latest_col_idx' not in st.session_state:
     st.session_state.latest_col_idx = None
 
@@ -136,6 +138,7 @@ def process_excel_data(uploaded_file):
         
         # Process Data_YTD sheet
         df_ytd = None
+        latest_col_ytd_idx = None
         if "Data_YTD" in excel_file.sheet_names:
             df_ytd = pd.read_excel(uploaded_file, sheet_name="Data_YTD")
             
@@ -268,10 +271,10 @@ def process_excel_data(uploaded_file):
                                 df_summary_present = df_summary.iloc[:, [0, previous_col_idx, latest_col_idx]].copy()
                                 df_summary_present.columns = ['Kategori Risiko', 'previous_month', 'present_month']
         
-        return df_ytd, df_summary, df_summary_present, latest_col_idx, True, "Data processed successfully!"
+        return df_ytd, df_summary, df_summary_present, latest_col_idx, latest_col_ytd_idx, True, "Data processed successfully!"
     
     except Exception as e:
-        return None, None, None, None, False, f"Error processing file: {str(e)}"
+        return None, None, None, None, None, False, f"Error processing file: {str(e)}"
 
 def show_data_upload():
     """Display data upload interface"""
@@ -280,7 +283,7 @@ def show_data_upload():
     uploaded_file = st.file_uploader("Choose an Excel file", type=['xlsx', 'xls'])
     
     if uploaded_file is not None:
-        df_ytd, df_summary, df_summary_present, latest_col_idx, success, message = process_excel_data(uploaded_file)
+        df_ytd, df_summary, df_summary_present, latest_col_idx, latest_col_ytd_idx, success, message = process_excel_data(uploaded_file)
         
         if success:
             st.success(f"✅ {message}")
@@ -290,6 +293,7 @@ def show_data_upload():
             st.session_state.df_summary = df_summary
             st.session_state.df_summary_present = df_summary_present
             st.session_state.latest_col_idx = latest_col_idx
+            st.session_state.latest_col_ytd_idx = latest_col_ytd_idx
             st.session_state.uploaded_file = uploaded_file
             
             # Display preview
@@ -343,12 +347,12 @@ def show_dashboard():
     # Date selector
     date_col1, date_col2 = st.columns([1, 5])
     with date_col1:
-        available_dates = list(st.session_state.df_summary.columns[:latest_col_idx])
+        available_dates = list(st.session_state.df_ytd.columns[:st.session_state.latest_col_ytd_idx]) if st.session_state.latest_col_ytd_idx else []
         if available_dates:
             selected_date = st.selectbox(
                 "Select Date",
                 options=available_dates,
-                index=min(latest_col_idx - 1, len(available_dates) - 1)
+                index=min(st.session_state.latest_col_ytd_idx - 1, len(available_dates) - 1)
             )
         else:
             st.warning("No dates available")
@@ -365,16 +369,22 @@ def show_dashboard():
             def color_cells(val):
                 try:
                     val_float = float(val)
-                    if val_float <= 2.3:
-                        return 'background-color: #90EE90'
-                    elif val_float == 3.0:
-                        return 'background-color: #FFD700'
+                    if val_float <= 1.79:
+                        return 'background-color: #90d050'
+                    elif val_float <= 2.59:
+                        return 'background-color: #fff2cc'
+                    elif val_float <= 3.39:
+                        return 'background-color: #ffff00'
+                    elif val_float <= 4.19:
+                        return 'background-color: #ffc001'
+                    elif val_float <= 5:
+                        return 'background-color: #ff0000'
                     else:
                         return ''
                 except:
                     return ''
             
-            styled_df = st.session_state.df_summary_present.style.map(
+            styled_df = st.session_state.df_summary_present[:9].style.map(
                 color_cells, 
                 subset=['previous_month', 'present_month']
             )
