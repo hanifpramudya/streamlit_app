@@ -124,6 +124,8 @@ if 'df_summary_present' not in st.session_state:
     st.session_state.df_summary_present = None
 if 'uploaded_file' not in st.session_state:
     st.session_state.uploaded_file = None
+if 'df_summary' not in st.session_state:
+    st.session_state.uploaded_file = None
 
 def process_excel_data(uploaded_file):
     """Process Excel file and return cleaned dataframes"""
