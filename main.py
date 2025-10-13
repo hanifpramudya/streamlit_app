@@ -340,7 +340,7 @@ def show_dashboard():
     
     with col_nps:
         st.markdown("#### Composite score")
-        st.markdown(f"**Average Risk** - NPS Score is {df_summary_present['present_month'][10]:.2f}")
+        st.markdown(f"**Average Risk** - NPS Score is {st.session_state.df_summary_present['present_month'][10]:.2f}")
         
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
