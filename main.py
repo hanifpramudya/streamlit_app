@@ -333,9 +333,9 @@ def format_value(value):
 def format_percentage(value):
     """Convert value to percentage format for RBC"""
     try:
-        return f"{float(value):.2f}%"
+        return f"{float(value*100):.2f}%"
     except:
-        return f"{value}%"
+        return f"{value*100}%"
 
 def show_dashboard():
     """Display the risk management dashboard"""
