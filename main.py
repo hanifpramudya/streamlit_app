@@ -409,9 +409,6 @@ def show_dashboard():
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col_nps:
-        st.markdown("#### Composite score")
-        st.markdown("")
-        
         # Safely get the composite score
         try:
             composite_score = float(st.session_state.df_summary_present['present_month'].iloc[10])
