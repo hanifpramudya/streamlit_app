@@ -591,16 +591,16 @@ def show_dashboard():
                             textposition='auto'
                         )])
                         fig_pie.update_layout(
-                            title="Investment Portfolio Distribution",
+                            title="Distribusi Portfolio Investasi",
                             height=500,
                             margin=dict(l=20, r=20, t=60, b=20),
                             showlegend=True,
                             legend=dict(
-                                orientation="v",
-                                yanchor="middle",
-                                y=0.5,
-                                xanchor="left",
-                                x=1.05
+                                orientation="h",
+                                yanchor="bottom",
+                                y=-0.2,
+                                xanchor="center",
+                                x=0.5
                             )
                         )
                         st.plotly_chart(fig_pie, use_container_width=True, key="pie_all_combined")
