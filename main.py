@@ -398,12 +398,9 @@ def show_dashboard():
         # Fallback: calculate from df_summary statically
         df_numpy = st.session_state.df_summary.to_numpy()
         row_0_numpy = df_numpy[0]
-        nan_mask = row_0_numpy == '-'
-
-        if nan_mask.any():
-            nan_indices = int(np.where(nan_mask)[0][0])
-            latest_col_idx = nan_indices - 3
-            prev_col_idx = nan_indices - 6
+        nan_indices = int(np.where(row_0_numpy == '-')[0][0])
+        latest_col_idx = nan_indices - 3
+        prev_col_idx = nan_indices - 6
 
     # Calculate summary column indices based on selected date
     if st.session_state.df_summary is not None and latest_col_idx is not None:
