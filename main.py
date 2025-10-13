@@ -388,7 +388,7 @@ def show_dashboard():
                 color_cells, 
                 subset=['previous_month', 'present_month']
             )
-            st.dataframe(styled_df, hide_index=True, use_container_width=True, height=150)
+            st.dataframe(styled_df, hide_index=True, use_container_width=True, height=180)
         else:
             st.warning("No data available. Please upload data first.")
         
@@ -414,7 +414,7 @@ def show_dashboard():
                 'axis': {'range': [None, 5], 'tickwidth': 1},
                 'bar': {'color': "black"},
                 'bgcolor': "white",
-                'borderwidth': 2,
+                'borderwidth': 2.5,
                 'steps': [
                     {'range': [0, 1.80], 'color': '#90d050'},
                     {'range': [1.80, 2.60], 'color': '#fff2cc'},
