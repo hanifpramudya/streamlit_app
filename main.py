@@ -180,7 +180,7 @@ def process_excel_data(uploaded_file):
                 df_ytd_numpy = df_ytd.to_numpy()
                 row_0_ytd_numpy = df_ytd_numpy[0]
                 nan_indices = int(np.where(pd.isna(row_0_ytd_numpy))[0][0])
-                latest_col_ytd_idx = nan_indices
+                latest_col_ytd_idx = df_ytd.columns[nan_indices-1]
                 present_col_ytd = df_ytd.columns[max(0, nan_indices - 13):nan_indices]
 
         # Process Summary sheet
