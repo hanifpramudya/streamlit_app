@@ -311,8 +311,11 @@ def show_dashboard():
     # Date selector
     date_col1, date_col2 = st.columns([1, 5])
     with date_col1:
-        selected_date = st.selectbox(st.session_state.df_summary.columns[:latest_col_idx], [f"{st.session_state.df_summary.columns[st.session_state.latest_col_idx]}"], label_visibility="collapsed")
-    
+        selected_date = selected_date = st.selectbox(
+    f"Select Date",  # Label for the selectbox
+    options=st.session_state.df_summary.columns[:st.session_state.latest_col_idx],
+    index=st.session_state.latest_col_idx - 1)  # Default to the latest column
+
     # Summary Section
     st.markdown("### Summary")
     
