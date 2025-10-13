@@ -316,13 +316,15 @@ def show_data_upload():
         st.write("**Note:** The file should contain sheets named 'Data_YTD' and 'Summary'")
 
 def format_value(value):
-    """Format value to show in million or billion"""
+    """Format value to show in thousand, million or billion"""
     try:
         val = float(value)
         if val >= 1_000_000_000:  # Billion
             return f"{val / 1_000_000_000:.1f} bil"
         elif val >= 1_000_000:  # Million
             return f"{val / 1_000_000:.1f} mil"
+        elif val >= 1_000:  # Thousand
+            return f"{val / 1_000:.1f} rb"
         else:
             return f"{val:,.0f}"
     except:
