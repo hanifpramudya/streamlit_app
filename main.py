@@ -401,7 +401,38 @@ def show_dashboard():
     # Map col_position from df_ytd to df_summary (assuming 3 columns per date in summary)
     if col_position is not None and st.session_state.df_summary is not None:
         # Find the column index in df_summary where column name contains selected_date
-        matching_cols = np.where([selected_date in str(col) for col in st.session_state.df_summary.columns])[0]
+        # Handle abbreviated month names (e.g., Apr-2025 matches April-2025)
+        month_mapping = {
+            'Jan': 'January', 'Feb': 'February', 'Mar': 'March', 'Apr': 'April',
+            'May': 'May', 'Jun': 'June', 'Jul': 'July', 'Aug': 'August',
+            'Sep': 'September', 'Oct': 'October', 'Nov': 'November', 'Dec': 'December'
+        }
+
+        def month_match(selected, col_name):
+            """Check if selected_date matches col_name, handling abbreviated months"""
+            selected_str = str(selected)
+            col_str = str(col_name)
+
+            # Direct substring match
+            if selected_str in col_str:
+                return True
+
+            # Check for abbreviated month matching full month
+            for abbr, full in month_mapping.items():
+                if abbr in selected_str and full in col_str:
+                    # Replace abbreviated month with full month and check
+                    expanded = selected_str.replace(abbr, full)
+                    if expanded in col_str:
+                        return True
+                # Also check reverse: if full month in selected and abbr in column
+                if full in selected_str and abbr in col_str:
+                    abbreviated = selected_str.replace(full, abbr)
+                    if abbreviated in col_str:
+                        return True
+
+            return False
+
+        matching_cols = np.where([month_match(selected_date, col) for col in st.session_state.df_summary.columns])[0]
         if len(matching_cols) > 0:
             latest_col_idx = int(matching_cols[-3])  # Get the last matching column
             prev_col_idx = latest_col_idx-3
