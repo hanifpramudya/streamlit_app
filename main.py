@@ -511,7 +511,14 @@ def show_dashboard():
             styled_df = df_summary_display[:9].style.map(
                 color_cells,
                 subset=['previous_month', 'present_month']
-            )
+            ).format(
+                {col: '{:.2f}' for col in df_summary_display.columns if col not in ['Risks']},
+                na_rep='-'
+            ).set_properties(
+                **{'text-align': 'center'}
+            ).set_table_styles([
+                {'selector': 'th', 'props': [('text-align', 'center')]}
+            ])
             st.dataframe(styled_df, hide_index=True, use_container_width=True, height=350)
         else:
             st.warning("No data available. Please upload data first.")
