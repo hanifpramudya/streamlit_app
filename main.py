@@ -508,12 +508,17 @@ def show_dashboard():
                 except:
                     return ''
 
+            # Format only numeric columns to 2 decimal places
+            format_dict = {}
+            for col in df_summary_display.columns:
+                if col in ['previous_month', 'present_month']:
+                    format_dict[col] = lambda x: f'{x:.2f}' if pd.notna(x) and isinstance(x, (int, float)) else '-'
+
             styled_df = df_summary_display[:9].style.map(
                 color_cells,
                 subset=['previous_month', 'present_month']
             ).format(
-                {col: '{:.2f}' for col in df_summary_display.columns if col not in ['Risks']},
-                na_rep='-'
+                format_dict
             ).set_properties(
                 **{'text-align': 'center'}
             ).set_table_styles([
